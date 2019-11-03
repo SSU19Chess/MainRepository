@@ -18,5 +18,16 @@
     <ClCompile Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\Main.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\Print.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\Game.c">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\GameData.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

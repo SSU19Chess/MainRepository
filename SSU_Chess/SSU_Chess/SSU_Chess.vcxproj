@@ -123,7 +123,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\Game.c" />
     <ClCompile Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\Main.c" />
+    <ClCompile Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\Print.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\GameData.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
