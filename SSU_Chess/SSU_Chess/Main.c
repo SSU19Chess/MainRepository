@@ -14,4 +14,4 @@ int main()
 		return 0;
 	else
 		printf("이곳에 게임 시작 입력");
-}s
+}
