@@ -1,5 +1,5 @@
 #pragma once
-#pragma once
+#include <Windows.h>
 
 // Inputs
 #define LEFT  75
@@ -19,21 +19,29 @@
 
 typedef enum _PIECETYPE { NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING } PIECETYPE;
 
-typedef struct _POS
+typedef struct _POS //위치 정보
 {
 	int x, y;
 }POS;
+
+typedef struct _MOVEDATA
+{
+	POS pos;
+	int isCastling;
+}MOVEDATA;
 
 typedef struct _STATEDATA
 {
 	PIECETYPE picecType;
 	int player;
+	int moveCnt;
 }STATEDATA;
 
 typedef struct _CHESS
 {
 	STATEDATA states[CHESS_RANK][CHESS_FILE];
 
-	int queenSideCastling[2];
-	int kingSideCastling[2];
+	int pieceCnt;
+	BOOL queenSideCastling[2];
+	BOOL kingSideCastling[2];
 }CHESS;

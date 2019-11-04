@@ -12,6 +12,8 @@ int main()
 
 	if (sel == -1)
 		return 0;
-	else
-		printf("이곳에 게임 시작 입력");
+	//else
+		//InGame();
+	
+
 }
