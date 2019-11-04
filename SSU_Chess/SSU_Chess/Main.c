@@ -2,19 +2,16 @@
 #include <Windows.h>
 #include "GameData.h"
 #include "Game.h"
-#include "Print.h" 
-#include "Input.h"
+#include "Print.h"
 
 
 
 int main()
 {
-	InitBoard();
-	
-	while(1)
-	{
-			
-	}
+	int sel = MainMenu();
 
-	return 0;
-}
+	if (sel == -1)
+		return 0;
+	else
+		printf("이곳에 게임 시작 입력");
+}s

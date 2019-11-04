@@ -16,7 +16,6 @@
 #define CHESS_RANK 8
 #define CHESS_FILE 8
 
-typedef enum _COLOR { Black = 0, Blue, Green, Cyan, Red, Magenta, Brown, Lgray, Dgray, Lblue, Lgreen, Lcyan, Lred, Lmagenta, Yellow, White } COLOR;
 
 typedef enum _PIECETYPE { NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING } PIECETYPE;
 

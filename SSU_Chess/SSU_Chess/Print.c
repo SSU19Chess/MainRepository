@@ -23,7 +23,7 @@ void InitBoard() //체스보드를 최초 출력한다.
 			for (int i = 0; i < 3; i++)
 				for (int j = 0; j < 3; j++)
 				{
-					GotoXY(3 * y + i, 6 * x + 2 * j);
+					gotoxy(3 * y + i, 6 * x + 2 * j);
 					printf("　");
 				}
 			/*===========================*/
@@ -33,8 +33,21 @@ void InitBoard() //체스보드를 최초 출력한다.
 	}
 }
 
-void GotoXY(int y, int x) //gotoxy 함수
+void gotoxy(int y, int x) //gotoxy 함수
 {
 	COORD pos = { x,y };
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+}
+
+void CursorView(char show)//커서숨기기
+{
+	HANDLE hConsole;
+	CONSOLE_CURSOR_INFO ConsoleCursor;
+
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	ConsoleCursor.bVisible = show;
+	ConsoleCursor.dwSize = 1;
+
+	SetConsoleCursorInfo(hConsole, &ConsoleCursor);
 }
