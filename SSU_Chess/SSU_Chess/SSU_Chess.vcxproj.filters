@@ -15,24 +15,24 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\Main.c">
+    <ClCompile Include="Main.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\Print.c">
+    <ClCompile Include="Print.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\Game.c">
+    <ClCompile Include="Game.c">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\GameData.h">
+    <ClInclude Include="Game.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\Game.h">
+    <ClInclude Include="GameData.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\Print.h">
+    <ClInclude Include="Print.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
