@@ -11,7 +11,10 @@ int main()
 {
 	InitBoard();
 	
-
+	while(1)
+	{
+			
+	}
 
 	return 0;
 }
