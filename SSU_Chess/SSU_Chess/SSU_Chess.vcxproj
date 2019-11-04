@@ -18,6 +18,16 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Game.c" />
+    <ClCompile Include="Main.c" />
+    <ClCompile Include="Print.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Game.h" />
+    <ClInclude Include="GameData.h" />
+    <ClInclude Include="Print.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{3AC3FF2E-6FD8-40EB-AAA8-889020C7CA41}</ProjectGuid>
@@ -122,16 +132,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\Game.c" />
-    <ClCompile Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\Main.c" />
-    <ClCompile Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\Print.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\Game.h" />
-    <ClInclude Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\GameData.h" />
-    <ClInclude Include="..\..\..\..\..\Visual Studio Projects___%40%40\Repository\MainRepository\SSU_Chess\SSU_Chess\Print.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
