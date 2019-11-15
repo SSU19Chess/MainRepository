@@ -1,18 +1,33 @@
+#include <stdio.h>
+#include <conio.h>
+
 #include "Game.h"
 #include "Print.h"
 #include "GameData.h"
-#include <stdio.h>
-#include <Windows.h>
-#include <conio.h>
+
+// 초기 게임 판 구성
+const PIECETYPE initPieces[CHESS_SIZE][CHESS_SIZE] = {
+	{ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK},
+	{PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN},
+	{NONE, NONE, NONE, NONE, NONE, NONE, NONE, NONE},
+	{NONE, NONE, NONE, NONE, NONE, NONE, NONE, NONE},
+	{NONE, NONE, NONE, NONE, NONE, NONE, NONE, NONE},
+	{NONE, NONE, NONE, NONE, NONE, NONE, NONE, NONE},
+	{PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN},
+	{ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK}
+};
 
 int MainMenu()
 {
-	CursorView(0);
+	// 초기 세팅 -------------------------------
+	//CursorView(0);
 
+	// 변수 선언 -------------------------------
 	int ypos = 13;
 
-	PrtMainMenu();
 
+	// 시작화면---------------------------------
+	PrtMainMenu();
 	while (1)
 	{
 		gotoxy(ypos, 10);
@@ -43,6 +58,137 @@ int MainMenu()
 	}
 }
 
+int InGame()
+{
+	// 변수 선언 -------------------------------
+	CHESS* chess = Init();			// 체스 게임 정보
+	POS currentPos = { 0,0 };		// 체스판에서의 현재 위치
+	POS lastSelectedPos = { -1, -1 };	// 선택한 기물의 위치, 선택한 기물이 없다면 {-1, -1}
+	MOVEDATA* moveData = NULL;		// 선택한 기물이 움직일 수 있는 위치 정보들
+
+	// 인 게임화면------------------------------
+	while (1)
+	{
+		PrintBoard(chess, moveData);
+		PrintState(chess);
+
+		Input(chess, &lastSelectedPos, &currentPos, &moveData);
+	}
+}
+
+void Input(CHESS* chess, POS* lastSelectedPos, POS* currentPos, MOVEDATA** moveData)
+{
+	BOOL r = TRUE;
+	char c;
+	while (r)
+	{
+		gotoxy(currentPos->y * GRID_SIZE + 1 + GAP, (currentPos->x * GRID_SIZE + 1 + GAP) * 2);
+		c = _getch();
+		switch (c)
+		{
+		case RIGHT:      //방향키 우측 시 커서 x + 1
+		{
+			currentPos->x++;
+
+			if (currentPos->x >= CHESS_SIZE)   //오목판 크기를 벗어나는 값일 경우 x - 1
+			{
+				currentPos->x--;
+			}
+
+			break;
+		}
+
+		case LEFT:      //방향키 좌측 시 커서 x - 1
+		{
+			currentPos->x--;
+
+			if (currentPos->x < 0)      //오목판 크기를 벗어나는 값일 경우 x + 1
+			{
+				currentPos->x++;
+			}
+
+			break;
+		}
+
+		case UP:      //방향키 위측 시 커서 y - 1
+		{
+			currentPos->y--;
+
+			if (currentPos->y < 0)      //오목판 크기를 벗어나는 값일 경우 y + 1
+				currentPos->y++;
+
+			break;
+		}
+
+		case DOWN:      //방향키 아래측 시 커서 y + 1
+		{
+			currentPos->y++;
+
+			if (currentPos->y >= CHESS_SIZE)   //오목판 크기를 벗어나는 값일 경우 y - 1
+				currentPos->y--;
+
+			break;
+		}
+
+		case ENTER:      //엔터키 입력 시
+		{
+			if (lastSelectedPos->x == -1 || lastSelectedPos->y == -1) // 아무것도 선택이 안된 상태일 때
+			{
+				if (chess->states[currentPos->y][currentPos->x].pieceType != NONE)
+				{
+					if (chess->states[currentPos->y][currentPos->x].player == chess->currentPlayer)
+					{
+						memcpy(lastSelectedPos, currentPos, sizeof(POS));
+						*moveData = GetMoveData(chess, *currentPos);
+					}
+				}
+			}
+			else
+			{
+				int index = IsInMoveData(moveData, *currentPos);
+				if (index != -1)
+				{
+					Move(chess, *lastSelectedPos, *(*moveData + index));
+					*lastSelectedPos = (POS){ -1,-1 };
+				}
+			}
+			r = FALSE;      //r의 값에 0을 대입 (무한루프 탈출)
+			break;
+		}
+		}
+	}
+}
+
+// 체스판을 초기화하는 함수
+CHESS* Init()
+{
+	CHESS* chess = (CHESS*)malloc(sizeof(CHESS));
+	if (chess == NULL)
+		return NULL;
+
+	for (int y = 0; y < CHESS_SIZE; y++)
+	{
+		for (int x = 0; x < CHESS_SIZE; x++)
+		{
+			int color = EMPTY_PLAYER;
+			if (y <= 1)
+				color = BLACK_PLAYER;
+			else if (y >= 6)
+				color = WHITE_PLAYER;
+
+			chess->states[y][x] = (STATEDATA){ initPieces[y][x], color, 0 };
+		}
+	}
+
+	chess->kingSideCastling[0] = TRUE;
+	chess->queenSideCastling[0] = TRUE;
+	chess->kingSideCastling[1] = TRUE;
+	chess->queenSideCastling[1] = TRUE;
+
+	chess->currentPlayer = WHITE_PLAYER;
+
+	return chess;
+}
 
 //해당 말이 y, x로 이동할 수 있는지 여부 반환
 BOOL IsAvailableToMov(CHESS* ch, int y, int x, int curColor) 
@@ -203,6 +349,21 @@ BOOL IsInMap(POS pos)
 	if (pos.x < 0 || pos.x >= CHESS_SIZE || pos.y < 0 || pos.y >= CHESS_SIZE)
 		return FALSE;
 	return TRUE;
+}
+
+// pos가 MoveData 목록 안에 있는지
+int IsInMoveData(MOVEDATA* md, const POS pos)
+{
+	if( md == NULL)
+		return -1;
+
+	size_t size = _msize(md) / sizeof(MOVEDATA);
+	for (int i = 0; i < size; i++)
+	{
+		if (md[i].pos.x == pos.x && md[i].pos.y == pos.y)
+			return i;
+	}
+	return -1;
 }
 
 
@@ -637,4 +798,6 @@ int CalculateState(CHESS* chess, const POS kingPos)
 		return 2;
 	return 0;
 }
+
+
 
