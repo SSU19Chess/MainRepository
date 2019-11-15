@@ -9,8 +9,8 @@
 #define ENTER  13
 
 //
-#define WHITE_PLAYER 0
 #define BLACK_PLAYER 1
+#define WHITE_PLAYER -1
 
 //
 #define CHESS_RANK 8
@@ -32,7 +32,7 @@ typedef struct _MOVEDATA
 
 typedef struct _STATEDATA
 {
-	PIECETYPE picecType;
+	PIECETYPE pieceType;
 	int player;
 	int moveCnt;
 }STATEDATA;
@@ -41,7 +41,6 @@ typedef struct _CHESS
 {
 	STATEDATA states[CHESS_RANK][CHESS_FILE];
 
-	int pieceCnt;
 	BOOL queenSideCastling[2];
 	BOOL kingSideCastling[2];
 }CHESS;

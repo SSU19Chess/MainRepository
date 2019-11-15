@@ -7,6 +7,25 @@ void SetColor(WORD text, WORD back) //text와 background의 색상을 변경한다.
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), text + back * 16);
 }
 
+void gotoxy(int y, int x) //gotoxy 함수
+{
+	COORD pos = { x,y };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+}
+
+void CursorView(char show)//커서숨기기
+{
+	HANDLE hConsole;
+	CONSOLE_CURSOR_INFO ConsoleCursor;
+
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	ConsoleCursor.bVisible = show;
+	ConsoleCursor.dwSize = 1;
+
+	SetConsoleCursorInfo(hConsole, &ConsoleCursor);
+}
+
 void InitBoard() //체스보드를 최초 출력한다.
 {
 	int flag = -1; //흑과 백의 색깔 스위칭 변수 -1을 곱하면서 스위칭.
@@ -33,21 +52,22 @@ void InitBoard() //체스보드를 최초 출력한다.
 	}
 }
 
-void gotoxy(int y, int x) //gotoxy 함수
+void PrtMainMenu()
 {
-	COORD pos = { x,y };
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
-}
+	printf("　◆◆◆◆　◆◆◆◆　◆　　◆　　　　　　　　　\n");
+	printf("　◆　　　　◆　　　　◆　　◆　　　◆◆　　　　\n");
+	printf("　◆◆◆◆　◆◆◆◆　◆　　◆　　◆　　◆　　◆\n");
+	printf("　　　　◆　　　　◆　◆　　◆　　　　　　◆◆　\n");
+	printf("　◆◆◆◆　◆◆◆◆　　◆◆　　　　　　　　　　\n\n");
+	printf("　　◆◆◆　◆　　◆　◆◆◆◆　◆◆◆◆　◆◆◆◆\n");
+	printf("　◆　　　　◆　　◆　◆　　　　◆　　　　◆　　　\n");
+	printf("　◆　　　　◆◆◆◆　◆◆◆◆　◆◆◆◆　◆◆◆◆\n");
+	printf("　◆　　　　◆　　◆　◆　　　　　　　◆　　　　◆\n");
+	printf("　　◆◆◆　◆　　◆　◆◆◆◆　◆◆◆◆　◆◆◆◆\n\n\n");
+	printf("　　　　　　　게임시작　　　　　　　　　　　　　　\n");
+	printf("　　　　　　　게임종료\n");
 
-void CursorView(char show)//커서숨기기
-{
-	HANDLE hConsole;
-	CONSOLE_CURSOR_INFO ConsoleCursor;
 
-	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-
-	ConsoleCursor.bVisible = show;
-	ConsoleCursor.dwSize = 1;
-
-	SetConsoleCursorInfo(hConsole, &ConsoleCursor);
+	gotoxy(13, 10);
+	printf("☞");
 }

@@ -11,8 +11,8 @@ typedef enum _COLOR
 /* 콘솔 관련 함수 */
 void gotoxy(int y, int x);			 //gotoxy 함수
 void SetColor(WORD text, WORD back); //text와 background의 색상을 변경한다.
+void CursorView(char show);          //콘솔창에 커서 숨김 여부를 설정한다.
 
 /* 게임 출력 함수 */
 void InitBoard();					 //체스보드를 최초 출력한다.
-
-void CursorView(char show);          //커서숨기기
+void PrtMainMenu();					 //메인메뉴를 출력한다.
