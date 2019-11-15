@@ -50,7 +50,7 @@ BOOL IsAvailableToMov(CHESS* ch, int y, int x, int curColor)
 	if (ch->states[y][x].player == curColor) //해당 칸에 같은편 기물이 있으면 FALSE
 		return FALSE;
 
-	if(!IsInMap((POS){y, x}))
+	if(!IsInMap((POS){x, y}))
 		return FALSE;
 	
 	return TRUE;
@@ -59,7 +59,7 @@ BOOL IsAvailableToMov(CHESS* ch, int y, int x, int curColor)
 //해당 칸이 비어있으면 TRUE
 BOOL IsEmpty(CHESS* ch, int y, int x)
 {
-	if (!IsInMap((POS) { y, x }))
+	if (!IsInMap((POS) { x, y }))
 		return FALSE;
 
 	if (ch->states[y][x].pieceType == NONE)
@@ -219,8 +219,8 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 
 
 	/* 특정 PIECETYPE의 MOVEDATA */
-	const int knightMovDataY[6] = { 1, 1, -1, -1, 2, -2 }; //KNIGHT의 이동 데이터
-	const int knightMovDataX[6] = { 2, -2, 2, -2, 1, -1 };
+	const int knightMovDataY[8] = { 2, 1, -1, -2, -2, -1, 1, 2 }; //KNIGHT의 이동 데이터
+	const int knightMovDataX[8] = { 1, 2, 2, 1, -1, -2, -2, -1 };
 
 	const int bishopMovDataY[4] = { 1, 1, -1, -1 };		   //BISHOP의 이동 데이터
 	const int bishopMovDataX[4] = { -1, 1, -1, 1 };
@@ -262,7 +262,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 		{
 			for (int i = 0; i <= 1; i++)
 			{
-				POS nextPos = { pos.y + (curColor * (i + 1)), pos.x };
+				POS nextPos = { pos.x, pos.y + (curColor * (i + 1)) };
 
 				if (!IsEmpty(ch, nextPos.y, nextPos.x)) break;
 				if (!IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor)) break;
@@ -286,9 +286,9 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 
 	case KNIGHT: //현재 선택된 기물이 KNIGHT일 경우
 
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < 8; i++)
 		{
-			POS nextPos = { pos.y + knightMovDataY[i], pos.x + knightMovDataX[i] };
+			POS nextPos = { pos.x + knightMovDataX[i], pos.y + knightMovDataY[i] };
 			if (IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor))
 			{
 				ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
@@ -304,7 +304,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 		for (int i = 0; i < 4; i++)
 		{
 			int plus = 1;
-			POS nextPos = { pos.y + plus * bishopMovDataY[i], pos.x + plus * bishopMovDataX[i] };
+			POS nextPos = { pos.x + plus * bishopMovDataX[i], pos.y + plus * bishopMovDataY[i] };
 
 			while (IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor))
 			{
@@ -326,7 +326,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 		for (int i = 0; i < 4; i++)
 		{
 			int plus = 1;
-			POS nextPos = { pos.y + plus * rookMovDataY[i], pos.x + plus * bishopMovDataX[i] };
+			POS nextPos = { pos.x + plus * bishopMovDataX[i], pos.y + plus * rookMovDataY[i] };
 
 			while (IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor))
 			{
@@ -346,7 +346,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 		//일반적인 이동
 		for (int i = 0; i < 8; i++)
 		{
-			POS nextPos = { pos.y + kingMovDataY[i], pos.x + kingMovDataX[i] };
+			POS nextPos = { pos.x + kingMovDataX[i], pos.y + kingMovDataY[i] };
 
 			if (IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor) && CalculateState(ch, (POS){nextPos.y, nextPos.x}))
 			{
@@ -366,7 +366,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 			POS rookPosQ = { curColor == WHITE_PLAYER ? 7 : 0, curColor == WHITE_PLAYER ? 0 : 7 };
 
 			//현재 킹이 체크되어있는지 판단
-			if (CalculateState(ch, (POS) { kingPos.y, kingPos.x }) == 1)
+			if (CalculateState(ch, (POS) { kingPos.x, kingPos.y }) == 1)
 				break;
 
 			//킹사이드 캐슬링
@@ -378,10 +378,10 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 
 				for (int i = 1; i <= 2; i++) //킹과 룩 사이의 빈칸에 적의 기물의 이동이 가능한지 여부 판단
 				{
-					POS nextPos = { kingPos.y, kingPos.x - (curColor * i) };
+					POS nextPos = { kingPos.x - (curColor * i), kingPos.y };
 
 					if (!IsEmpty(ch, nextPos.y, nextPos.x) ||
-						CalculateState(ch, (POS){nextPos.y, nextPos.x}) != 0)
+						CalculateState(ch, (POS){nextPos.x, nextPos.y}) != 0)
 						flag = TRUE;
 				}
 				if (!flag) 
@@ -400,10 +400,10 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 
 				for (int i = 1; i <= 2; i++) //킹과 룩 사이의 빈칸에 적의 기물의 이동이 가능한지 여부 판단
 				{
-					POS nextPos = { kingPos.y, kingPos.x + (curColor * i) };
+					POS nextPos = { kingPos.x + (curColor * i), kingPos.y };
 
 					if (!IsEmpty(ch, nextPos.y, nextPos.x) || 
-						CalculateState(ch, (POS) { nextPos.y, nextPos.x }) != 0 )
+						CalculateState(ch, (POS) { nextPos.x, nextPos.y }) != 0 )
 						flag = TRUE;
 				}
 				if (!flag)
@@ -495,7 +495,6 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 // King이 공격을 받지 않음 == 0
 // Check == 1
 // 상대의 공격을 막을 수 없음 == 2
-
 // Check인지 CheckMate인지 StaleMate인지 판별함
 int CalculateState(CHESS* chess, const POS kingPos) 
 {
