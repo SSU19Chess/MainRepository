@@ -12,8 +12,8 @@ int main()
 
 	if (sel == -1)
 		return 0;
-	//else
-		//InGame();
+	else
+		InGame();
 	
 
 }
