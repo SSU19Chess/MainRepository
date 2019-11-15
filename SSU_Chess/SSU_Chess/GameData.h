@@ -41,7 +41,7 @@ typedef struct _CHESS
 {
 	STATEDATA states[CHESS_SIZE][CHESS_SIZE];
 
-	int currentPlayer;
+	int currentPlayer; // 현재 기물을 움직일 수 있는 플레이어의 색
 
 	BOOL queenSideCastling[2];
 	BOOL kingSideCastling[2];
