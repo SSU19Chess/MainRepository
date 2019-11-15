@@ -9,12 +9,12 @@
 #define ENTER  13
 
 //
+#define EMPTY_PLAYER 0
 #define BLACK_PLAYER 1
 #define WHITE_PLAYER -1
 
 //
-#define CHESS_RANK 8
-#define CHESS_FILE 8
+#define CHESS_SIZE 8
 
 
 typedef enum _PIECETYPE { NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING } PIECETYPE;
@@ -39,7 +39,9 @@ typedef struct _STATEDATA
 
 typedef struct _CHESS
 {
-	STATEDATA states[CHESS_RANK][CHESS_FILE];
+	STATEDATA states[CHESS_SIZE][CHESS_SIZE];
+
+	int currentPlayer;
 
 	BOOL queenSideCastling[2];
 	BOOL kingSideCastling[2];

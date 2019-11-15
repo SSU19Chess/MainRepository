@@ -30,9 +30,9 @@ void InitBoard() //체스보드를 최초 출력한다.
 {
 	int flag = -1; //흑과 백의 색깔 스위칭 변수 -1을 곱하면서 스위칭.
 
-	for (int y = 0; y < 8; y++)
+	for (int y = 0; y < CHESS_SIZE; y++)
 	{
-		for (int x = 0; x < 8; x++)
+		for (int x = 0; x < CHESS_SIZE; x++)
 		{
 			// flag값에 따라 색상을 변경한다.
 			if (flag == -1) SetColor(0, White);
