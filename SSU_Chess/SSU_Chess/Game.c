@@ -384,7 +384,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 						CalculateState(ch, (POS){nextPos.y, nextPos.x}) != 0)
 						flag = TRUE;
 				}
-				if (!flag)
+				if (!flag) 
 				{
 					ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
 					ret[cnt - 1].pos.y = kingPos.y;
