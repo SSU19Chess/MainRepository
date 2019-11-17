@@ -32,7 +32,7 @@ void CursorView(char show)//커서숨기기
 
 	SetConsoleCursorInfo(hConsole, &ConsoleCursor);
 }
-void PrintBoard(CHESS* chess, MOVEDATA* md) // 체스판 전체를 출력하는 함수
+void PrintBoard(CHESS* chess,const MOVEDATA* md) // 체스판 전체를 출력하는 함수
 {
 	int grid = 1;
 

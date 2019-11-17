@@ -132,24 +132,34 @@ void Input(CHESS* chess, POS* lastSelectedPos, POS* currentPos, MOVEDATA** moveD
 
 		case ENTER:      //엔터키 입력 시
 		{
-			if (lastSelectedPos->x == -1 || lastSelectedPos->y == -1) // 아무것도 선택이 안된 상태일 때
+			
+			int index = IsInMoveData(*moveData, *currentPos); // moveData가 NULL이거나, moveData 배열 안에 currentPos와 같은 pos를 가진 값이 없다면 -1, 있으면 인덱스 반환
+			if (index != -1) // moveData 안에 currentPos가 있다면
 			{
-				if (chess->states[currentPos->y][currentPos->x].pieceType != NONE)
+				Move(chess, *lastSelectedPos, *(*moveData + index)); // 기물을 움직이고
+				*lastSelectedPos = (POS){ -1,-1 };	// 선택한 기물의 위치를 저장하는 변수를 초기화 한다.
+
+				if (*moveData != NULL)
 				{
-					if (chess->states[currentPos->y][currentPos->x].player == chess->currentPlayer)
-					{
-						memcpy(lastSelectedPos, currentPos, sizeof(POS));
-						*moveData = GetMoveData(chess, *currentPos);
-					}
+					free(*moveData); // 메모리 해제
+					*moveData = NULL;
 				}
-			}
+			}			
 			else
 			{
-				int index = IsInMoveData(moveData, *currentPos);
-				if (index != -1)
+				if (chess->states[currentPos->y][currentPos->x].pieceType != NONE)					// 선택한 위치가 비어있지 않고
 				{
-					Move(chess, *lastSelectedPos, *(*moveData + index));
-					*lastSelectedPos = (POS){ -1,-1 };
+					if (chess->states[currentPos->y][currentPos->x].player == chess->currentPlayer) // 선택한 위치의 기물의 색이 현재 턴의 플레이어의 색과 같다면
+					{
+						memcpy(lastSelectedPos, currentPos, sizeof(POS));	// 선택한 위치를 저장하고
+						*moveData = GetMoveData(chess, *currentPos);		// 선택한 위치에 있는 기물의 이동가능한 경로를 얻는다.
+
+						if (_msize(*moveData) / sizeof(MOVEDATA) == 0)	// 만약 기물의 이동가능한 경로가 없다면
+						{
+							free(*moveData);	// 할당받은 메모리를 해제해주고
+							*moveData = NULL;	// 아무것도 가리키게 하지 않는다.
+						}
+					}
 				}
 			}
 			r = FALSE;      //r의 값에 0을 대입 (무한루프 탈출)
@@ -352,7 +362,7 @@ BOOL IsInMap(POS pos)
 }
 
 // pos가 MoveData 목록 안에 있는지
-int IsInMoveData(MOVEDATA* md, const POS pos)
+int IsInMoveData(const MOVEDATA* md, const POS pos)
 {
 	if( md == NULL)
 		return -1;
@@ -602,6 +612,7 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 			break;
 		}
 	default: {
+		chess->states[src.y][src.x].moveCnt++;
 		chess->states[desMoveData.pos.y][desMoveData.pos.x] = chess->states[src.y][src.x]; // 기물을 움직이고
 		chess->states[src.y][src.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; // 움직이기 전의 위치는 NONE으로
 		}

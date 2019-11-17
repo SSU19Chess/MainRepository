@@ -1,7 +1,4 @@
 ﻿  Game.c
-C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\SSU_Chess\Game.c(75,56): warning C4047:  '함수': 'MOVEDATA *'의 간접 참조 수준이 'MOVEDATA **'과(와) 다릅니다.
-C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\SSU_Chess\Game.c(75,56): warning C4024:  'Input': 형식 및 실제 매개 변수 4의 형식이 서로 다릅니다.
-C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\SSU_Chess\Game.c(80,1): warning C4028:  정식 매개 변수 4이(가) 선언과 다릅니다.
-C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\SSU_Chess\Game.c(148,38): warning C4047:  '함수': 'MOVEDATA *'의 간접 참조 수준이 'MOVEDATA **'과(와) 다릅니다.
-C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\SSU_Chess\Game.c(148,38): warning C4024:  'IsInMoveData': 형식 및 실제 매개 변수 1의 형식이 서로 다릅니다.
+C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\SSU_Chess\Game.c(366,1): warning C4028:  정식 매개 변수 1이(가) 선언과 다릅니다.
+C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\SSU_Chess\Game.c(370,25): warning C4090:  '함수': 'const' 한정자가 서로 다릅니다.
   SSU_Chess.vcxproj -> C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\x64\Debug\SSU_Chess.exe
