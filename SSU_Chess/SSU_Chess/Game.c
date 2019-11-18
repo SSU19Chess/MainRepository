@@ -483,6 +483,8 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 				ret[cnt - 1].pos.y = nextPos.y;
 				ret[cnt - 1].pos.x = nextPos.x;
 
+				if (ch->states[nextPos.y][nextPos.x].player == oppoColor) break;
+
 				nextPos.y = pos.y + plus * bishopMovDataY[i];
 				nextPos.x = pos.x + plus * bishopMovDataX[i];
 				plus++;
@@ -497,16 +499,18 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 		for (int i = 0; i < 4; i++)
 		{
 			int plus = 1;
-			POS nextPos = { pos.x + plus * bishopMovDataX[i], pos.y + plus * rookMovDataY[i] };
+			POS nextPos = { pos.x + plus * rookMovDataX[i], pos.y + plus * rookMovDataY[i] };
 
 			while (IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor))
 			{
 				ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
-				ret[cnt - 1].pos.y = nextPos.y;
 				ret[cnt - 1].pos.x = nextPos.x;
+				ret[cnt - 1].pos.y = nextPos.y;
 
-				nextPos.y = pos.y + plus * rookMovDataY[i];
+				if (ch->states[nextPos.y][nextPos.x].player == oppoColor) break;
+
 				nextPos.x = pos.x + plus * rookMovDataX[i];
+				nextPos.y = pos.y + plus * rookMovDataY[i];
 				plus++;
 			}
 		}
