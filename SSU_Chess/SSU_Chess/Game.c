@@ -131,8 +131,7 @@ void Input(CHESS* chess, POS* lastSelectedPos, POS* currentPos, MOVEDATA** moveD
 		}
 
 		case ENTER:      //엔터키 입력 시
-		{
-			
+		{	
 			int index = IsInMoveData(*moveData, *currentPos); // moveData가 NULL이거나, moveData 배열 안에 currentPos와 같은 pos를 가진 값이 없다면 -1, 있으면 인덱스 반환
 			if (index != -1) // moveData 안에 currentPos가 있다면
 			{
@@ -410,25 +409,32 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 	{
 	case PAWN: //현재 선택된 기물이 PAWN일 경우
 
-		if (ch->states[pos.y + curColor][pos.x - 1].player == oppoColor) //대각선에 적 기물이 있는지 판단
+		for (int i = 1; ; i *= -1) //앙파상
 		{
-			if (IsAvailableToMov(ch, pos.y + curColor, pos.x - 1, curColor))
+			if (ch->states[pos.y][pos.x + i].epState == TRUE)
 			{
 				ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
 				ret[cnt - 1].pos.y = pos.y + curColor;
-				ret[cnt - 1].pos.x = pos.x - 1;
+				ret[cnt - 1].pos.x = pos.x + i;
+				ret[cnt - 1].isEP = TRUE; //앙파상으로 잡힐 수 있는 상태
 			}
-		}
-		if (ch->states[pos.y + curColor][pos.x + 1].player == oppoColor)
-		{
-			if (IsAvailableToMov(ch, pos.y + curColor, pos.x + 1, curColor))
-			{
-				ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
-				ret[cnt - 1].pos.y = pos.y + curColor;
-				ret[cnt - 1].pos.x = pos.x + 1;
-			}
+			
+			if (i == -1) break;
 		}
 
+		for (int i = 1; ; i *= -1) //대각선에 적 기물이 있는지 판단
+		{
+			if (ch->states[pos.y + curColor][pos.x + i].player == oppoColor) 
+			{
+				if (IsAvailableToMov(ch, pos.y + curColor, pos.x + i, curColor))
+				{
+					ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
+					ret[cnt - 1].pos.y = pos.y + curColor;
+					ret[cnt - 1].pos.x = pos.x + i;
+				}
+			}
+			if (i == -1) break;
+		}
 		if (curState.moveCnt == 0) //Pawn이 한번도 움직이지 않았을 경우
 		{
 			for (int i = 0; i <= 1; i++)
@@ -564,6 +570,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 					ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
 					ret[cnt - 1].pos.y = kingPos.y;
 					ret[cnt - 1].pos.x = kingPos.x - (2 * curColor);
+					ret[cnt - 1].isCastling = TRUE;
 				}
 			}
 			//퀸사이드 캐슬링
@@ -586,6 +593,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 					ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
 					ret[cnt - 1].pos.y = kingPos.y;
 					ret[cnt - 1].pos.x = kingPos.x + (2 * curColor);
+					ret[cnt - 1].isCastling = TRUE;
 				}
 			}
 		}
@@ -599,6 +607,8 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 // 기물을 움직이고 승패판정
 void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData) 
 {
+	UpdateEpState(chess, chess->states[src.y][src.x].player); //앙파상 폰 관리
+
 	PIECETYPE catchEnemy = NONE;
 
 	// 움직일 위치에 상대 말이 있는 경우
@@ -615,13 +625,35 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 			// Castling
 			break;
 		}
+
+	case PAWN : 
+		chess->states[src.y][src.x].moveCnt++;
+		chess->states[desMoveData.pos.y][desMoveData.pos.x] = chess->states[src.y][src.x]; // 기물을 움직이고
+		
+		if (chess->states[src.y][src.x].moveCnt == 1 &&								 //최초로 움직이는 경우이고,
+			  desMoveData.pos.y == ( chess->states[src.y][src.x].player == WHITE_PLAYER ? 4 : 3)) //2칸 앞으로 전진하는 경우
+			chess->states[desMoveData.pos.y][desMoveData.pos.x].epState = TRUE;
+		
+		chess->states[src.y][src.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; // 움직이기 전의 위치는 NONE으로
+		
+		
+		if (desMoveData.isEP == TRUE) //앙파상 조건을 만족하여 상대방 폰의 뒤로 이동할 경우, 
+		{
+			//상대방의 기물을 제거.
+			int curPlayer = chess->states[desMoveData.pos.y][desMoveData.pos.x].player;
+
+			chess->states[desMoveData.pos.y - curPlayer][desMoveData.pos.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; //앙파상 당한 폰의 위치는 NONE으로
+		}
+
+		break;
+
 	default: {
 		chess->states[src.y][src.x].moveCnt++;
 		chess->states[desMoveData.pos.y][desMoveData.pos.x] = chess->states[src.y][src.x]; // 기물을 움직이고
 		chess->states[src.y][src.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; // 움직이기 전의 위치는 NONE으로
 		}
 	}
-
+	
 	// King의 위치를 찾는 부분------------
 	POS kingPos = { 0, 0 };
 	for (int y = 0; y < CHESS_SIZE; y++)
@@ -813,5 +845,19 @@ int CalculateState(CHESS* chess, const POS kingPos)
 	return 0;
 }
 
-
+void UpdateEpState(CHESS* chess, int curColor)
+{
+	for (int y = 0; y < CHESS_SIZE; y++)
+	{
+		for (int x = 0; x < CHESS_SIZE; x++)
+		{
+			if( chess->states[y][x].player == curColor * -1 &&
+				chess->states[y][x].pieceType == PAWN &&
+				chess->states[y][x].epState == TRUE)
+			{
+				chess->states[y][x].epState = FALSE;
+			}
+		}
+	}
+}
 

@@ -29,6 +29,7 @@ typedef struct _MOVEDATA
 {
 	POS pos;
 	int isCastling;
+	int isEP; //앙파상으로 잡힐 수 있는지 여부를 나타낸다
 }MOVEDATA;
 
 typedef struct _STATEDATA
@@ -36,6 +37,7 @@ typedef struct _STATEDATA
 	PIECETYPE pieceType;
 	int player;
 	int moveCnt;
+	int epState; //pawn 전용 멤버, 앙파상으로 잡힐수 있는지 여부를 나타낸다.
 }STATEDATA;
 
 typedef struct _CHESS

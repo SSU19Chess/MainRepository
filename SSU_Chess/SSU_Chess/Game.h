@@ -21,3 +21,4 @@ int CalculateState(CHESS* chess, const POS kingPos);				// Check인지 CheckMate인
 																	// Check == 1
 																	// 상대의 공격을 막을 수 없음 == 2
 
+void UpdateEpState(CHESS* chess); //앙파상 상태를 업데이트 한다
