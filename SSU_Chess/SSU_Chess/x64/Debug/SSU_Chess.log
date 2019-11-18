@@ -1,6 +1,6 @@
 ﻿  Game.c
 E:\Library\문서\Visual Studio Projects___@@\Repository\MainRepository\SSU_Chess\SSU_Chess\Game.c(365,1): warning C4028: 정식 매개 변수 1이(가) 선언과 다릅니다.
 E:\Library\문서\Visual Studio Projects___@@\Repository\MainRepository\SSU_Chess\SSU_Chess\Game.c(369,25): warning C4090: '함수': 'const' 한정자가 서로 다릅니다.
-E:\Library\문서\Visual Studio Projects___@@\Repository\MainRepository\SSU_Chess\SSU_Chess\Game.c(608,57): warning C4020: 'UpdateEpState': 실제 매개 변수가 너무 많습니다.
-E:\Library\문서\Visual Studio Projects___@@\Repository\MainRepository\SSU_Chess\SSU_Chess\Game.c(847,1): warning C4029: 선언된 정식 매개 변수 목록이 정의와 다릅니다.
+E:\Library\문서\Visual Studio Projects___@@\Repository\MainRepository\SSU_Chess\SSU_Chess\Game.c(611,57): warning C4020: 'UpdateEpState': 실제 매개 변수가 너무 많습니다.
+E:\Library\문서\Visual Studio Projects___@@\Repository\MainRepository\SSU_Chess\SSU_Chess\Game.c(850,1): warning C4029: 선언된 정식 매개 변수 목록이 정의와 다릅니다.
   SSU_Chess.vcxproj -> E:\Library\문서\Visual Studio Projects___@@\Repository\MainRepository\SSU_Chess\x64\Debug\SSU_Chess.exe

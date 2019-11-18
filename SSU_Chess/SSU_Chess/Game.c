@@ -536,15 +536,15 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 				ret[cnt - 1].pos.x = nextPos.x;
 			}
 		}
-
+		
 		//캐슬링
 		//킹의 움직임 여부를 우선 판단
 		if (ch->states[curColor == WHITE_PLAYER ? 7 : 0][curColor == WHITE_PLAYER ? 4 : 3].pieceType == KING &&
 			ch->states[curColor == WHITE_PLAYER ? 7 : 0][curColor == WHITE_PLAYER ? 4 : 3].moveCnt == 0)
 		{
-			POS kingPos = { curColor == WHITE_PLAYER ? 7 : 0 , curColor == WHITE_PLAYER ? 4 : 3 };
+			POS kingPos = { curColor == WHITE_PLAYER ? 4 : 3 , curColor == WHITE_PLAYER ? 7 : 0 };
 			POS rookPosK = { curColor == WHITE_PLAYER ? 7 : 0, curColor == WHITE_PLAYER ? 7 : 0 };
-			POS rookPosQ = { curColor == WHITE_PLAYER ? 7 : 0, curColor == WHITE_PLAYER ? 0 : 7 };
+			POS rookPosQ = { curColor == WHITE_PLAYER ? 0 : 7, curColor == WHITE_PLAYER ? 7 : 0 };
 
 			//현재 킹이 체크되어있는지 판단
 			if (CalculateState(ch, (POS) { kingPos.x, kingPos.y }) == 1)
@@ -573,6 +573,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 					ret[cnt - 1].isCastling = TRUE;
 				}
 			}
+			
 			//퀸사이드 캐슬링
 			//룩의 움직임 여부 판단
 			if (ch->states[rookPosQ.y][rookPosQ.x].pieceType == ROOK &&
