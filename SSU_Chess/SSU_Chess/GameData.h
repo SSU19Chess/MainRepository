@@ -17,6 +17,7 @@
 #define CHESS_SIZE 8
 
 
+
 typedef enum _PIECETYPE { NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING } PIECETYPE;
 
 typedef struct _POS //위치 정보
