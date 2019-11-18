@@ -410,18 +410,18 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 	{
 	case PAWN: //현재 선택된 기물이 PAWN일 경우
 
-		if (ch->states[pos.y + curColor][pos.x - 1].pieceType == oppoColor) //대각선에 적 기물이 있는지 판단
+		if (ch->states[pos.y + curColor][pos.x - 1].player == oppoColor) //대각선에 적 기물이 있는지 판단
 		{
-			if (IsAvailableToMov(ch, pos.y - 1, pos.x - 1, curColor))
+			if (IsAvailableToMov(ch, pos.y + curColor, pos.x - 1, curColor))
 			{
 				ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
 				ret[cnt - 1].pos.y = pos.y + curColor;
 				ret[cnt - 1].pos.x = pos.x - 1;
 			}
 		}
-		if (ch->states[pos.y + curColor][pos.x + 1].pieceType == oppoColor)
+		if (ch->states[pos.y + curColor][pos.x + 1].player == oppoColor)
 		{
-			if (IsAvailableToMov(ch, pos.y - 1, pos.x + 1, curColor))
+			if (IsAvailableToMov(ch, pos.y + curColor, pos.x + 1, curColor))
 			{
 				ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
 				ret[cnt - 1].pos.y = pos.y + curColor;

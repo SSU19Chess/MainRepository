@@ -1,8 +1,4 @@
 ﻿  Game.c
-C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\SSU_Chess\Game.c(366,1): warning C4028:  정식 매개 변수 1이(가) 선언과 다릅니다.
-  Main.c
-  Print.c
-C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\SSU_Chess\Game.c(370,25): warning C4090:  '함수': 'const' 한정자가 서로 다릅니다.
-  코드를 생성하고 있습니다...
-C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\SSU_Chess\Print.c(89,33): warning C4090:  '함수': 'const' 한정자가 서로 다릅니다.
-  SSU_Chess.vcxproj -> C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\x64\Debug\SSU_Chess.exe
+E:\Library\문서\Visual Studio Projects___@@\Repository\MainRepository\SSU_Chess\SSU_Chess\Game.c(366,1): warning C4028: 정식 매개 변수 1이(가) 선언과 다릅니다.
+E:\Library\문서\Visual Studio Projects___@@\Repository\MainRepository\SSU_Chess\SSU_Chess\Game.c(370,25): warning C4090: '함수': 'const' 한정자가 서로 다릅니다.
+  SSU_Chess.vcxproj -> E:\Library\문서\Visual Studio Projects___@@\Repository\MainRepository\SSU_Chess\x64\Debug\SSU_Chess.exe
