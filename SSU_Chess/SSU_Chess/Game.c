@@ -642,6 +642,8 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 		if (desMoveData.isCastling != 0)
 		{
 			// Castling
+
+
 			break;
 		}
 

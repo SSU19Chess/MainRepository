@@ -43,7 +43,6 @@ typedef struct _STATEDATA
 typedef struct _GAMEPRINTINFO
 {
 	int gameState; // 0 == None, 1 == Check, 2 == CheckMate, 3 ==StaleMate
-
 	PIECETYPE diedPiece[2][20];
 	int diedPieceCnt[2];
 }GAMEPRINTINFO;
