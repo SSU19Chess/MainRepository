@@ -40,12 +40,21 @@ typedef struct _STATEDATA
 	int epState; //pawn 전용 멤버, 앙파상으로 잡힐수 있는지 여부를 나타낸다.
 }STATEDATA;
 
+typedef struct _GAMEPRINTINFO
+{
+	int gameState; // 0 == None, 1 == Check, 2 == CheckMate, 3 ==StaleMate
+
+	PIECETYPE diedPiece[2][20];
+	int diedPieceCnt[2];
+}GAMEPRINTINFO;
+
 typedef struct _CHESS
 {
 	STATEDATA states[CHESS_SIZE][CHESS_SIZE];
-
-	int currentPlayer; // 현재 기물을 움직일 수 있는 플레이어의 색, (Game.c - Move 함수)에서 바뀜
-
 	BOOL queenSideCastling[2];
 	BOOL kingSideCastling[2];
+
+	int currentPlayer; // 현재 기물을 움직일 수 있는 플레이어의 색, (Game.c - Move 함수)에서 바뀜
+	GAMEPRINTINFO printInfo;
 }CHESS;
+

@@ -160,6 +160,14 @@ void Input(CHESS* chess, POS* lastSelectedPos, POS* currentPos, MOVEDATA** moveD
 						}
 					}
 				}
+				else
+				{
+					if (*moveData != NULL)
+					{
+						free(*moveData); // 메모리 해제
+						*moveData = NULL;
+					}
+				}
 			}
 			r = FALSE;      //r의 값에 0을 대입 (무한루프 탈출)
 			break;
@@ -188,14 +196,24 @@ CHESS* Init()
 			chess->states[y][x] = (STATEDATA){ initPieces[y][x], color, 0 };
 		}
 	}
-
+	// 흰색 캐슬링 초기화
 	chess->kingSideCastling[0] = TRUE;
 	chess->queenSideCastling[0] = TRUE;
+	// 검은색 캐슬링 초기화
 	chess->kingSideCastling[1] = TRUE;
 	chess->queenSideCastling[1] = TRUE;
 
 	chess->currentPlayer = WHITE_PLAYER;
 
+	chess->printInfo.gameState = 0;
+	for (int i = 0; i < 2; i++)
+	{
+		chess->printInfo.diedPieceCnt[i] = 0;
+		for (int j = 0; j < 20; j++)
+		{
+			chess->printInfo.diedPiece[i][j] = NONE;
+		}
+	}
 	return chess;
 }
 
@@ -610,12 +628,12 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 {
 	UpdateEpState(chess, chess->states[src.y][src.x].player); //앙파상 폰 관리
 
-	PIECETYPE catchEnemy = NONE;
 
 	// 움직일 위치에 상대 말이 있는 경우
 	if (chess->states[desMoveData.pos.y][desMoveData.pos.x].pieceType != NONE)
 	{
-		catchEnemy = chess->states[desMoveData.pos.y][desMoveData.pos.x].pieceType;
+		int playerIndex = chess->states[src.y][src.x].player == BLACK_PLAYER ? 1 : 0;
+		chess->printInfo.diedPiece[playerIndex][chess->printInfo.diedPieceCnt[playerIndex]++] = chess->states[desMoveData.pos.y][desMoveData.pos.x].pieceType;
 	}
 
 	switch (chess->states[src.y][src.x].pieceType)
@@ -673,14 +691,14 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 	if (gameState == 1)
 	{
 		//Check
-		printf("  Check  ");
+		chess->printInfo.gameState = 1;
 	}
 	else if (gameState == 2)
 	{
 		if (CheckAround(chess, kingPos))
 		{
 			// CheckMate
-			printf("CheckMate");
+			chess->printInfo.gameState = 2;
 		}
 	}
 	else
@@ -688,11 +706,11 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 		if (CheckAround(chess, kingPos))
 		{
 			// StaleMate
-			printf("StaleMate");
+			chess->printInfo.gameState = 3;
 		}
 		else
 		{
-			printf("         ");
+			chess->printInfo.gameState = 0;
 		}
 	}
 
