@@ -547,7 +547,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 		{
 			POS nextPos = { pos.x + kingMovDataX[i], pos.y + kingMovDataY[i] };
 
-			if (IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor) && CalculateState(ch, (POS){nextPos.y, nextPos.x}))
+			if (IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor) && CalculateState(ch, (POS){nextPos.x, nextPos.y}) == 0)
 			{
 				ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
 				ret[cnt - 1].pos.y = nextPos.y;
@@ -616,6 +616,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 				}
 			}
 		}
+		
 
 		break;
 	}
