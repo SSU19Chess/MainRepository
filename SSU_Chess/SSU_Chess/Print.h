@@ -21,4 +21,5 @@ void CursorView(char show);          //콘솔창에 커서 숨김 여부를 설정한다.
 void PrintBoard(CHESS* chess, const MOVEDATA* md);
 void PrintGrid(POS pos, STATEDATA sd, COLOR color, int canMove);
 void PrintState(CHESS* chess);
+void PrintRect(const POS pos, const int width, const int height);
 void PrtMainMenu();					 //메인메뉴를 출력한다.
