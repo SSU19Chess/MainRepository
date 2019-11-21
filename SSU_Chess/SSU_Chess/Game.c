@@ -138,6 +138,15 @@ void Input(CHESS* chess, POS* lastSelectedPos, POS* currentPos, MOVEDATA** moveD
 				Move(chess, *lastSelectedPos, *(*moveData + index)); // 기물을 움직이고
 				*lastSelectedPos = (POS){ -1,-1 };	// 선택한 기물의 위치를 저장하는 변수를 초기화 한다.
 
+				if (chess->printInfo.gameState == 2)
+				{
+					// 체크메이트 발생 게임 종료
+				}
+				else
+				{
+					// 스테일메이트 발생 게임 종료
+				}
+
 				if (*moveData != NULL)
 				{
 					free(*moveData); // 메모리 해제
