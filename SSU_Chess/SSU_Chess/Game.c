@@ -547,7 +547,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 		{
 			POS nextPos = { pos.x + kingMovDataX[i], pos.y + kingMovDataY[i] };
 
-			if (IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor) && CalculateState(ch, (POS){nextPos.x, nextPos.y}) == 0)
+			if (IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor) && !OtherCanCome(ch, (POS){nextPos.x, nextPos.y}, curColor))
 			{
 				ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
 				ret[cnt - 1].pos.y = nextPos.y;
@@ -573,14 +573,14 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 			if (ch->states[rookPosK.y][rookPosK.x].pieceType == ROOK &&
 				ch->states[rookPosK.y][rookPosK.x].moveCnt == 0)
 			{
-				int flag = FALSE;
+				int flag = FALSE; //flag가 true? : 캐슬링 조건 만족 X
 
 				for (int i = 1; i <= 2; i++) //킹과 룩 사이의 빈칸에 적의 기물의 이동이 가능한지 여부 판단
 				{
 					POS nextPos = { kingPos.x - (curColor * i), kingPos.y };
 
 					if (!IsEmpty(ch, nextPos.y, nextPos.x) ||
-						CalculateState(ch, (POS){nextPos.x, nextPos.y}) != 0)
+						OtherCanCome(ch, (POS) {nextPos.x, nextPos.y}, curColor))
 						flag = TRUE;
 				}
 				if (!flag) 
@@ -588,7 +588,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 					ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
 					ret[cnt - 1].pos.y = kingPos.y;
 					ret[cnt - 1].pos.x = kingPos.x - (2 * curColor);
-					ret[cnt - 1].isCastling = TRUE;
+					ret[cnt - 1].isCastling = 1;
 				}
 			}
 			
@@ -597,14 +597,14 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 			if (ch->states[rookPosQ.y][rookPosQ.x].pieceType == ROOK &&
 				ch->states[rookPosQ.y][rookPosQ.x].moveCnt == 0)
 			{
-				int flag = FALSE;
+				int flag = FALSE; //flag가 true? : 캐슬링 조건 만족 X
 
 				for (int i = 1; i <= 2; i++) //킹과 룩 사이의 빈칸에 적의 기물의 이동이 가능한지 여부 판단
 				{
 					POS nextPos = { kingPos.x + (curColor * i), kingPos.y };
 
 					if (!IsEmpty(ch, nextPos.y, nextPos.x) || 
-						CalculateState(ch, (POS) { nextPos.x, nextPos.y }) != 0 )
+						OtherCanCome(ch, (POS) { nextPos.x, nextPos.y }, curColor))
 						flag = TRUE;
 				}
 				if (!flag)
@@ -612,7 +612,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 					ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
 					ret[cnt - 1].pos.y = kingPos.y;
 					ret[cnt - 1].pos.x = kingPos.x + (2 * curColor);
-					ret[cnt - 1].isCastling = TRUE;
+					ret[cnt - 1].isCastling = 2;
 				}
 			}
 		}
@@ -629,6 +629,7 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 {
 	UpdateEpState(chess, chess->states[src.y][src.x].player); //앙파상 폰 관리
 
+	int curPlayer = chess->states[src.y][src.x].player;
 
 	// 움직일 위치에 상대 말이 있는 경우
 	if (chess->states[desMoveData.pos.y][desMoveData.pos.x].pieceType != NONE)
@@ -640,10 +641,33 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 	switch (chess->states[src.y][src.x].pieceType)
 	{
 	case KING: // King일 경우 캐슬링 확인
-		if (desMoveData.isCastling != 0)
+		if (desMoveData.isCastling !=0)
 		{
-			// Castling
+			//King 이동
+			chess->states[src.y][src.x].moveCnt++;
+			chess->states[desMoveData.pos.y][desMoveData.pos.x] = chess->states[src.y][src.x];
+			chess->states[src.y][src.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; // 움직이기 전의 위치는 NONE으로
 
+			//Rook 이동
+			POS rookPos;
+			POS rookDesPos;
+
+			if (desMoveData.isCastling == 1) //킹 사이드 캐슬링인 경우
+			{
+				rookPos = (curPlayer == WHITE_PLAYER ? (POS) { 7, 7 } : (POS) { 0, 0 });
+				rookDesPos = (curPlayer == WHITE_PLAYER ? (POS) { 5, 7 } : (POS) { 2, 0 } );
+			}
+			else if (desMoveData.isCastling == 2) // 퀸 사이드 캐슬링인 경우
+			{
+				rookPos = (curPlayer == WHITE_PLAYER ? (POS) { 7, 7 } : (POS) { 0, 0 });
+				rookDesPos = (curPlayer == WHITE_PLAYER ? (POS) { 3, 7 } : (POS) { 4, 0 });
+			}
+			rookPos = (POS){ 7,7 };	
+			rookDesPos = (POS){ 5, 7 };
+			
+			chess->states[rookPos.y][rookPos.x].moveCnt++;
+			chess->states[rookDesPos.y][rookDesPos.x] = chess->states[rookPos.y][rookPos.x];
+			chess->states[rookPos.y][rookPos.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; // 움직이기 전의 위치는 NONE으로			
 
 			break;
 		}
@@ -662,8 +686,6 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 		if (desMoveData.isEP == TRUE) //앙파상 조건을 만족하여 상대방 폰의 뒤로 이동할 경우, 
 		{
 			//상대방의 기물을 제거.
-			int curPlayer = chess->states[desMoveData.pos.y][desMoveData.pos.x].player;
-
 			chess->states[desMoveData.pos.y - curPlayer][desMoveData.pos.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; //앙파상 당한 폰의 위치는 NONE으로
 		}
 

@@ -16,6 +16,7 @@
 //
 #define CHESS_SIZE 8
 
+//
 
 
 typedef enum _PIECETYPE { NONE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING } PIECETYPE;
@@ -28,7 +29,7 @@ typedef struct _POS //위치 정보
 typedef struct _MOVEDATA
 {
 	POS pos;
-	int isCastling;
+	int isCastling; //1 = 킹사이드, 2 = 퀸사이드
 	int isEP; //앙파상으로 잡힐 수 있는지 여부를 나타낸다
 }MOVEDATA;
 
