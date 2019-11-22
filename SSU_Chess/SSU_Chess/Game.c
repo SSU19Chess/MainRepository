@@ -641,7 +641,7 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 	switch (chess->states[src.y][src.x].pieceType)
 	{
 	case KING: // King일 경우 캐슬링 확인
-		if (desMoveData.isCastling !=0)
+		if (desMoveData.isCastling != 0)
 		{
 			//King 이동
 			chess->states[src.y][src.x].moveCnt++;
