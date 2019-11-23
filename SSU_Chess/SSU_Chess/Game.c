@@ -205,13 +205,6 @@ CHESS* Init()
 			chess->states[y][x] = (STATEDATA){ initPieces[y][x], color, 0 };
 		}
 	}
-	// 흰색 캐슬링 초기화
-	chess->kingSideCastling[0] = TRUE;
-	chess->queenSideCastling[0] = TRUE;
-	// 검은색 캐슬링 초기화
-	chess->kingSideCastling[1] = TRUE;
-	chess->queenSideCastling[1] = TRUE;
-
 	chess->currentPlayer = WHITE_PLAYER;
 
 	chess->printInfo.gameState = 0;
@@ -406,14 +399,17 @@ int IsInMoveData(const MOVEDATA* md, const POS pos)
 //매개변수로 전달된 체스판을 기반으로 이동가능한 위치 벡터를 반환
 MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 {
-	MOVEDATA* ret;
+	MOVEDATA* mvData; 
+	MOVEDATA* chkedData; //체크 되어있을때, 반환값
+
 	const STATEDATA curState = ch->states[pos.y][pos.x];
 	const int curColor = curState.player;			 //현재 플레이어의 color
 	const int oppoColor = curColor * -1;			 //상대 플레이어의 color
 
-	int cnt = 0;									 //ret의 길이 즉, 이동가능한 위치의 개수
-	ret = (MOVEDATA*)malloc(sizeof(MOVEDATA) * cnt); //길이가 0인 빈 공간 할당
+	int cnt = 0;									 //mvData의 길이 즉, 이동가능한 위치의 개수
+	mvData = (MOVEDATA*)malloc(sizeof(MOVEDATA) * cnt); //길이가 0인 빈 공간 할당
 
+	POS curKingPos = GetKingPos(ch, curColor);
 
 	/* 특정 PIECETYPE의 MOVEDATA */
 	const int knightMovDataY[8] = { 2, 1, -1, -2, -2, -1, 1, 2 }; //KNIGHT의 이동 데이터
@@ -431,7 +427,6 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 	
 	/* Castling을 위한 변수 */
 	
-
 	switch (curState.pieceType)
 	{
 	case PAWN: //현재 선택된 기물이 PAWN일 경우
@@ -440,10 +435,10 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 		{
 			if (ch->states[pos.y][pos.x + i].epState == TRUE)
 			{
-				ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
-				ret[cnt - 1].pos.y = pos.y + curColor;
-				ret[cnt - 1].pos.x = pos.x + i;
-				ret[cnt - 1].isEP = TRUE; //앙파상으로 잡힐 수 있는 상태
+				mvData = (MOVEDATA*)realloc(mvData, sizeof(MOVEDATA) * (++cnt));
+				mvData[cnt - 1].pos.y = pos.y + curColor;
+				mvData[cnt - 1].pos.x = pos.x + i;
+				mvData[cnt - 1].isEP = TRUE; //앙파상으로 잡힐 수 있는 상태
 			}
 			
 			if (i == -1) break;
@@ -455,9 +450,9 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 			{
 				if (IsAvailableToMov(ch, pos.y + curColor, pos.x + i, curColor))
 				{
-					ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
-					ret[cnt - 1].pos.y = pos.y + curColor;
-					ret[cnt - 1].pos.x = pos.x + i;
+					mvData = (MOVEDATA*)realloc(mvData, sizeof(MOVEDATA) * (++cnt));
+					mvData[cnt - 1].pos.y = pos.y + curColor;
+					mvData[cnt - 1].pos.x = pos.x + i;
 				}
 			}
 			if (i == -1) break;
@@ -471,20 +466,20 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 				if (!IsEmpty(ch, nextPos.y, nextPos.x)) break;
 				if (!IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor)) break;
 
-				ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
+				mvData = (MOVEDATA*)realloc(mvData, sizeof(MOVEDATA) * (++cnt));
 
-				ret[cnt - 1].isCastling = FALSE;
-				ret[cnt - 1].pos.y = nextPos.y;
-				ret[cnt - 1].pos.x = nextPos.x;
+				mvData[cnt - 1].isCastling = FALSE;
+				mvData[cnt - 1].pos.y = nextPos.y;
+				mvData[cnt - 1].pos.x = nextPos.x;
 			}
 		}
 		else //Pawn이 한번 이상 움직였을 경우
 		{
 			if (!IsEmpty(ch, pos.y + curColor, pos.x)) break;
 
-			ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
-			ret[cnt - 1].pos.y = pos.y + curColor;
-			ret[cnt - 1].pos.x = pos.x;
+			mvData = (MOVEDATA*)realloc(mvData, sizeof(MOVEDATA) * (++cnt));
+			mvData[cnt - 1].pos.y = pos.y + curColor;
+			mvData[cnt - 1].pos.x = pos.x;
 		}
 		break;
 
@@ -495,9 +490,9 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 			POS nextPos = { pos.x + knightMovDataX[i], pos.y + knightMovDataY[i] };
 			if (IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor))
 			{
-				ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
-				ret[cnt - 1].pos.y = nextPos.y;
-				ret[cnt - 1].pos.x = nextPos.x;
+				mvData = (MOVEDATA*)realloc(mvData, sizeof(MOVEDATA) * (++cnt));
+				mvData[cnt - 1].pos.y = nextPos.y;
+				mvData[cnt - 1].pos.x = nextPos.x;
 			}
 		}
 		break;
@@ -512,9 +507,9 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 
 			while (IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor))
 			{
-				ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
-				ret[cnt - 1].pos.y = nextPos.y;
-				ret[cnt - 1].pos.x = nextPos.x;
+				mvData = (MOVEDATA*)realloc(mvData, sizeof(MOVEDATA) * (++cnt));
+				mvData[cnt - 1].pos.y = nextPos.y;
+				mvData[cnt - 1].pos.x = nextPos.x;
 
 				if (ch->states[nextPos.y][nextPos.x].player == oppoColor) break;
 
@@ -536,9 +531,9 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 
 			while (IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor))
 			{
-				ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
-				ret[cnt - 1].pos.x = nextPos.x;
-				ret[cnt - 1].pos.y = nextPos.y;
+				mvData = (MOVEDATA*)realloc(mvData, sizeof(MOVEDATA) * (++cnt));
+				mvData[cnt - 1].pos.x = nextPos.x;
+				mvData[cnt - 1].pos.y = nextPos.y;
 
 				if (ch->states[nextPos.y][nextPos.x].player == oppoColor) break;
 
@@ -558,9 +553,9 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 
 			if (IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor) && !OtherCanCome(ch, (POS){nextPos.x, nextPos.y}, curColor))
 			{
-				ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
-				ret[cnt - 1].pos.y = nextPos.y;
-				ret[cnt - 1].pos.x = nextPos.x;
+				mvData = (MOVEDATA*)realloc(mvData, sizeof(MOVEDATA) * (++cnt));
+				mvData[cnt - 1].pos.y = nextPos.y;
+				mvData[cnt - 1].pos.x = nextPos.x;
 			}
 		}
 		
@@ -594,10 +589,10 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 				}
 				if (!flag) 
 				{
-					ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
-					ret[cnt - 1].pos.y = kingPos.y;
-					ret[cnt - 1].pos.x = kingPos.x - (2 * curColor);
-					ret[cnt - 1].isCastling = 1;
+					mvData = (MOVEDATA*)realloc(mvData, sizeof(MOVEDATA) * (++cnt));
+					mvData[cnt - 1].pos.y = kingPos.y;
+					mvData[cnt - 1].pos.x = kingPos.x - (2 * curColor);
+					mvData[cnt - 1].isCastling = 1;
 				}
 			}
 			
@@ -618,10 +613,10 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 				}
 				if (!flag)
 				{
-					ret = (MOVEDATA*)realloc(ret, sizeof(MOVEDATA) * (++cnt));
-					ret[cnt - 1].pos.y = kingPos.y;
-					ret[cnt - 1].pos.x = kingPos.x + (2 * curColor);
-					ret[cnt - 1].isCastling = 2;
+					mvData = (MOVEDATA*)realloc(mvData, sizeof(MOVEDATA) * (++cnt));
+					mvData[cnt - 1].pos.y = kingPos.y;
+					mvData[cnt - 1].pos.x = kingPos.x + (2 * curColor);
+					mvData[cnt - 1].isCastling = 2;
 				}
 			}
 		}
@@ -630,7 +625,33 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 		break;
 	}
 
-	return ret;
+	//킹이 체크인경우 mvData 검사
+	if (CalculateState(ch, curKingPos) == 1)
+	{
+		CHESS ch2;
+		ch2 = *ch;
+
+		chkedData = (MOVEDATA*)malloc(sizeof(MOVEDATA) * cnt);
+		cnt = 0;
+
+		for (size_t idx = 0; idx < _msize(mvData) / sizeof(MOVEDATA); idx++)
+		{
+			Move(&ch2, pos, *(mvData+idx));
+			if (CalculateState(&ch2, curKingPos) == 0)
+			{
+				chkedData = (MOVEDATA*)realloc(chkedData, sizeof(MOVEDATA) * (++cnt));
+				chkedData[cnt - 1].pos = mvData[idx].pos;
+				chkedData[cnt - 1].isCastling = mvData[idx].isCastling;
+				chkedData[cnt - 1].isEP = mvData[idx].isEP;
+			}
+			Move(&ch2, mvData[idx].pos, (MOVEDATA) { pos, mvData[idx].isCastling, mvData[idx].isEP });
+		}
+
+		return chkedData;
+	}
+
+	else
+		return mvData;
 }
 
 // 기물을 움직이고 승패판정
@@ -914,3 +935,24 @@ void UpdateEpState(CHESS* chess, int curColor)
 	}
 }
 
+//curColor의 King 위치를 찾아서 반환한다.
+POS GetKingPos(CHESS* chess, int curColor) 
+{
+	POS ret;
+
+	//완전 탐색으로 KING의 위치를 찾는다.
+	for (int y = 0; y < CHESS_SIZE; y++)
+	{
+		for (int x = 0; x < CHESS_SIZE; x++)
+		{
+			if (chess->states[y][x].player == curColor &&
+				chess->states[y][x].pieceType == KING)
+			{
+				ret = (POS){ x, y };
+				return ret;
+			}
+		}
+	}
+	
+	return (POS) { -1, -1 }; //ERROR!
+}

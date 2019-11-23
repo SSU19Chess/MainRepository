@@ -6,6 +6,7 @@ int MainMenu(); //메인메뉴 함수, 종료 시 -1 반환
 void Input(CHESS* chess, POS* lastSelectPos, POS* currentPos, MOVEDATA** moveData);
 
 CHESS* Init();
+
 BOOL IsAvailableToMov(CHESS* ch, int y, int x, int curColor);		//해당 말이 y, x로 이동할 수 있는지 여부 반환
 BOOL IsEmpty(CHESS* ch, int y, int x);								//해당 칸이 비어있으면 TRUE
 BOOL OtherCanCome(CHESS* chess, const POS pos, int playerColor);	// playerColor와 다른 색의 말이 pos로 올 수 있는지 
@@ -21,4 +22,5 @@ int CalculateState(CHESS* chess, const POS kingPos);				// Check인지 CheckMate인
 																	// Check == 1
 																	// 상대의 공격을 막을 수 없음 == 2
 
-void UpdateEpState(CHESS* chess, int curColor); //앙파상 상태를 업데이트 한다
+void UpdateEpState(CHESS* chess, int curColor);						//앙파상 상태를 업데이트 한다
+POS GetKingPos(CHESS* chess, int curColor);							//curColor의 King위치를 찾아서 반환한다.
