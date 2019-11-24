@@ -190,6 +190,23 @@ void PrintState(CHESS* chess) // 체스판 옆에 게임에 대한 추가적인 정보를 표시하�
 	}
 }
 
+void PrintResult(int winPlayerColor) // BLACK_PLAYER, WHITE_PLAYER, ( 0 == 무승부)
+{
+	PrintRect((POS) { 1, 8 }, 20, 6);
+	if (winPlayerColor != 0)
+	{
+		gotoxy(GAP + 11, (GAP + CHESS_SIZE * GRID_SIZE + 5) * 2 + 1);
+		printf("%s", winPlayerColor == BLACK_PLAYER ? "BLACK" : "WHITE");
+		gotoxy(GAP + 12, (GAP + CHESS_SIZE * GRID_SIZE + 5) * 2 + 1);
+		printf("[WIN]");
+	}
+	else
+	{
+		gotoxy(GAP + 12, (GAP + CHESS_SIZE * GRID_SIZE + 5) * 2 + 1);
+		printf("[DRAW]");
+	}
+}
+
 
 void PrintRect(const POS pos,const int _width, const int height) // UI에서 사각형을 출력하는 함수, width와 height는 사각형 안쪽의 빈공간의 크기
 {

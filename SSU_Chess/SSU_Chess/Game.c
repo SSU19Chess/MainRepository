@@ -73,6 +73,18 @@ int InGame()
 		PrintState(chess);
 
 		Input(chess, &lastSelectedPos, &currentPos, &moveData);
+		if (chess->printInfo.gameState == 2)
+		{
+			// 체크메이트 발생 게임 종료
+			PrintResult(chess->currentPlayer * -1);
+			return 1;
+		}
+		else if(chess->printInfo.gameState == 3)
+		{
+			// 스테일메이트 발생 게임 종료
+			PrintResult(0);
+			return 1;
+		}
 	}
 }
 
@@ -137,15 +149,6 @@ void Input(CHESS* chess, POS* lastSelectedPos, POS* currentPos, MOVEDATA** moveD
 			{
 				Move(chess, *lastSelectedPos, *(*moveData + index)); // 기물을 움직이고
 				*lastSelectedPos = (POS){ -1,-1 };	// 선택한 기물의 위치를 저장하는 변수를 초기화 한다.
-
-				if (chess->printInfo.gameState == 2)
-				{
-					// 체크메이트 발생 게임 종료
-				}
-				else
-				{
-					// 스테일메이트 발생 게임 종료
-				}
 
 				if (*moveData != NULL)
 				{
@@ -654,6 +657,22 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 		return mvData;
 }
 
+BOOL PiecesCanMove(CHESS* chess, int curColor)// 기물들이 움직일 수 있는 수가 있는지 확인
+{
+	for (int y = 0; y < CHESS_SIZE; y++)
+	{
+		for (int x = 0; x < CHESS_SIZE; x++)
+		{
+			if (chess->states[y][x].player == curColor)
+			{
+				if (_msize(GetMoveData(chess, (POS) { x, y })) / sizeof(MOVEDATA) != 0)
+					return TRUE;
+			}
+		}
+	}
+	return FALSE;
+}
+
 // 기물을 움직이고 승패판정
 void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData) 
 {
@@ -729,15 +748,8 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 	}
 	
 	// King의 위치를 찾는 부분------------
-	POS kingPos = { 0, 0 };
-	for (int y = 0; y < CHESS_SIZE; y++)
-		for (int x = 0; x < CHESS_SIZE; x++)
-			if (chess->states[y][x].pieceType == KING &&
-				chess->states[y][x].player != chess->currentPlayer)
-			{
-				kingPos = (POS){ x,y };
-				break;
-			}
+	// 움직인 플레이어의 색이 아닌 상대의 색
+	POS kingPos = GetKingPos(chess, chess->currentPlayer * -1); 
 	//-----------------------------------
 
 
@@ -755,16 +767,22 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 			// CheckMate
 			chess->printInfo.gameState = 2;
 		}
+		else
+		{
+			//Check
+			chess->printInfo.gameState = 1;
+		}
 	}
 	else
 	{
-		if (CheckAround(chess, kingPos))
+		if (CheckAround(chess, kingPos) && !PiecesCanMove(chess, chess->currentPlayer * -1))
 		{
 			// StaleMate
 			chess->printInfo.gameState = 3;
 		}
 		else
 		{
+			//NONE
 			chess->printInfo.gameState = 0;
 		}
 	}
