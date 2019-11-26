@@ -4,8 +4,6 @@
 #include "Game.h"
 #include "Print.h"
 
-
-
 int main()
 {
 	int sel = MainMenu();
