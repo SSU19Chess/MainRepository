@@ -28,14 +28,14 @@ int MainMenu()
 	//CursorView(0);
 
 	// 변수 선언 -------------------------------
-	int ypos = 13;
+	int ypos = 20;
 
 
 	// 시작화면---------------------------------
 	PrtMainMenu();
 	while (1)
 	{
-		gotoxy(ypos, 10);
+		gotoxy(ypos, 35);
 
 		int input = _getch();
 		if (input == 224)
@@ -44,15 +44,16 @@ int MainMenu()
 			switch (input)
 			{
 			case UP:
-				ypos = 13;
+				ypos = 20;
 				printf("  ");
 				break;
 			case DOWN:
-				ypos = 14;
+				ypos = 22;
 				printf("  ");
 				break;
 			}
-			gotoxy(ypos, 10);
+			gotoxy(ypos, 35);
+			SetColor(Red, 0);
 			printf("☞");
 		}
 		else if (input == ENTER)
@@ -256,7 +257,18 @@ CHESS* Init()
 	return chess;
 }
 
-// 해당 말이 y, x로 이동할 수 있는지 여부 반환
+/**
+	@ 함수 이름 : IsAvailableToMov
+	@ 함수 설명 : 파라미터로 전달된 말이 y, x로 이동할 수 있는지 여부 반환
+	@ 파라미터 이름 나열 : (ch, y, x, curColor)
+	@ 파라미터 설명 :
+		@ ch : 체스 게임에 대한 정보를 가지고 있는 구조체
+		@ y, x : 전달된 말의 좌표
+		@ curColor : 전달된 말의 소유자
+	@ 참조 함수들 : IsInMap
+	@ exception 예외처리
+	// 
+**/
 BOOL IsAvailableToMov(CHESS* ch, int y, int x, int curColor) 
 {
 	if (ch->states[y][x].player == curColor) //해당 칸에 같은편 기물이 있으면 FALSE
@@ -268,8 +280,17 @@ BOOL IsAvailableToMov(CHESS* ch, int y, int x, int curColor)
 	return TRUE;
 }
 
-
-// 해당 칸이 비어있으면 TRUE
+/**
+	@ 함수 이름 : IsEmpty
+	@ 함수 설명 : 해당 칸이 비어있으면 TRUE
+	@ 파라미터 이름 나열 : ch, y, x
+	@ 파라미터 설명 : 
+		@ ch : 체스 게임에 대한 정보를 가지고 있는 구조체
+		@ y, x : 전달된 말의 좌표
+	@ 참조 함수들 : IsInMap
+	@ exception 예외처리 
+	//
+**/
 BOOL IsEmpty(CHESS* ch, int y, int x)
 {
 	if (!IsInMap((POS) { x, y }))
@@ -471,7 +492,17 @@ int IsInMoveData(const MOVEDATA* md, const POS pos)
 }
 
 
-//매개변수로 전달된 체스판을 기반으로 이동가능한 위치 벡터를 반환
+/**
+	@ 함수 이름: GetMoveData
+	@ 함수 설명: 매개변수로 전달된 체스판을 기반으로 이동가능한 위치 데이터들을 반환
+	@ 파라미터 이름 나열 (ch, pos)
+	@ 파라미터 설명
+		@ ch : 체스 게임에 대한 정보를 가지고 있는 구조체
+		@ pos : x, y 값을 담는 구조체
+	@ 참조 함수들 : GetKingPos, CalculateState, Move, IsAvailableToMov, IsEmpty, OtherCanCome
+	@ exception 예외처리
+	//
+**/
 MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 {
 	MOVEDATA* mvData; 
@@ -701,6 +732,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 	}
 
 	//킹이 체크인경우 mvData 검사
+	//mvData에서 체크를 벗어나게 하는 수만을 chkedData에 넣어 반환
 	if (CalculateState(ch, curKingPos) == 1)
 	{
 		CHESS ch2;
@@ -712,7 +744,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 		for (size_t idx = 0; idx < _msize(mvData) / sizeof(MOVEDATA); idx++)
 		{
 			Move(&ch2, pos, *(mvData+idx));
-			if (CalculateState(&ch2, curKingPos) == 0)
+			if (CalculateState(&ch2, curKingPos) != 1)
 			{
 				chkedData = (MOVEDATA*)realloc(chkedData, sizeof(MOVEDATA) * (++cnt));
 				chkedData[cnt - 1].pos = mvData[idx].pos;
@@ -1040,6 +1072,16 @@ int CalculateState(CHESS* chess, const POS kingPos)
 	return 0;
 }
 
+/**
+	@ 함수 이름: UpdataEpState
+	@ 함수 설명: 앙파상 상태를 업데이트 한다.
+	            보드 위의 앙파상이 가능한 "현재 색깔 PAWN들"을 탐색하여 
+				한 턴이 지나고, 앙파상이 불가능 하도록 변수를 업데이트 한다.
+	@ 파라미터 이름 나열 (chess, curColor)
+	@ 파라미터 설명
+		@ chess : 체스 게임에 대한 정보를 가지고 있는 구조체
+		@ curColor : 방금 턴을 진행한 쪽의 플레이어색
+**/
 void UpdateEpState(CHESS* chess, int curColor)
 {
 	for (int y = 0; y < CHESS_SIZE; y++)
@@ -1056,7 +1098,14 @@ void UpdateEpState(CHESS* chess, int curColor)
 	}
 }
 
-//curColor의 King 위치를 찾아서 반환한다.
+/**
+	@ 함수 이름: GetKingPos
+	@ 함수 설명: curColor의 King 위치를 찾아서 반환한다.
+	@ 파라미터 이름 나열 (chess, curColor)
+	@ 파라미터 설명
+		@ chess : 체스 게임에 대한 정보를 가지고 있는 구조체
+		@ src : 전달된 플레이어의 색깔
+**/
 POS GetKingPos(CHESS* chess, int curColor) 
 {
 	POS ret;

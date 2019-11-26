@@ -9,17 +9,39 @@ const char chessPiece[2][6] = {
 	{'p', 'n', 'b', 'r', 'q', 'k'}
 };
 
-void SetColor(WORD text, WORD back) //text와 background의 색상을 변경한다.
+/**
+	@ 함수 이름: SetColor
+	@ 함수 설명: text와 background의 색상을 변경한다.
+	@ 파라미터 이름 나열 (text, back)
+	@ 파라미터 설명
+		@ text : text 색상값
+		@ back : background 색상값
+**/
+void SetColor(WORD text, WORD back)
 {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), text + back * 16);
 }
 
+/**
+	@ 함수 이름: gotoxy
+	@ 함수 설명: 명령 프롬프트의 특정 좌표로 이동한다.
+	@ 파라미터 이름 나열 (y, x)
+	@ 파라미터 설명
+		@ y, x : 이동할 위치좌표
+**/
 void gotoxy(int y, int x) //gotoxy 함수
 {
 	COORD pos = { x,y };
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 }
 
+/**
+	@ 함수 이름: CursorView
+	@ 함수 설명: 커서를 표시 여부를 업데이트 한다.
+	@ 파라미터 이름 나열 (show)
+	@ 파라미터 설명
+		@ show : 커서표시 여부 값
+**/
 void CursorView(char show)//커서숨기기
 {
 	HANDLE hConsole;
@@ -291,22 +313,44 @@ void PrintRect(const POS pos,const int _width, const int height)
 	}
 }
 
+/**
+	@ 함수 이름: PrtMainMenu
+	@ 함수 설명: 게임의 메인메뉴를 출력한다.
+	@ 참조 함수들: gotoxy
+**/
 void PrtMainMenu()
 {
-	printf("　◆◆◆◆　◆◆◆◆　◆　　◆　　　　　　　　　\n");
-	printf("　◆　　　　◆　　　　◆　　◆　　　◆◆　　　　\n");
-	printf("　◆◆◆◆　◆◆◆◆　◆　　◆　　◆　　◆　　◆\n");
-	printf("　　　　◆　　　　◆　◆　　◆　　　　　　◆◆　\n");
-	printf("　◆◆◆◆　◆◆◆◆　　◆◆　　　　　　　　　　\n\n");
-	printf("　　◆◆◆　◆　　◆　◆◆◆◆　◆◆◆◆　◆◆◆◆\n");
-	printf("　◆　　　　◆　　◆　◆　　　　◆　　　　◆　　　\n");
-	printf("　◆　　　　◆◆◆◆　◆◆◆◆　◆◆◆◆　◆◆◆◆\n");
-	printf("　◆　　　　◆　　◆　◆　　　　　　　◆　　　　◆\n");
-	printf("　　◆◆◆　◆　　◆　◆◆◆◆　◆◆◆◆　◆◆◆◆\n\n\n");
-	printf("　　　　　　　게임시작　　　　　　　　　　　　　　\n");
-	printf("　　　　　　　게임종료\n");
+	SetColor(Yellow, 0);
+	printf("  _____                                   _  _   _   _         _           \n");
+	printf(" /  ___|                                 (_)| | | | | |       (_)          \n");
+	printf(" \\ `--.   ___    ___   _ __    __ _  ___  _ | | | | | | _ __   _ __   __   \n");
+	printf("  `--. \\ / _ \\  / _ \\ | '_ \\  / _` |/ __|| || | | | | || '_ \\ | |\\ \\ / /   \n");
+	printf(" /\\__/ /| (_) || (_) || | | || (_| |\\__ \\| || | | |_| || | | || | \\ V /  _ \n");
+	printf(" \\____/  \\___/  \\___/ |_| |_| \\__, ||___/|_||_|  \\___/ |_| |_||_|  \\_/  (_)\n");
+	printf("                               __/ |                                       \n");
+	printf("                              |___/                                        \n\n\n");
 
 
-	gotoxy(13, 10);
+	SetColor(Lgreen, 0);
+	printf("                      _____  _                      \n");
+	printf("                     /  __ \\| |                     \n");
+	printf("                     | /  \\/| |__    ___  ___  ___  \n");
+	printf("                     | |    | '_ \\  / _ \\/ __|/ __| \n");
+	printf("                     | \\__/\\| | | ||  __/\\__ \\\\__ \\ \n");
+	printf("                      \\____/|_| |_| \\___||___/|___/  \n\n");
+
+	SetColor(Lcyan, 0);
+	printf("                                                             -LCW LJH LKJ HYH - \n\n\n\n");
+       
+
+	SetColor(Lblue, 0);
+	gotoxy(20, 40);
+	printf("게임시작");
+
+	gotoxy(22, 40);
+	printf("게임종료");
+    
+	SetColor(Red, 0);
+	gotoxy(20, 35);
 	printf("☞");
 }

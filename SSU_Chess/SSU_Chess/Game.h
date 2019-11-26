@@ -14,7 +14,7 @@ BOOL CheckAround(CHESS* chess, const POS kingPos);					// 움직이면 죽는지 확인
 BOOL IsInMap(POS pos);												// pos가 체스판 안에 있는지 확인
 int IsInMoveData(MOVEDATA* md, const POS pos);						// pos가 MOVEDATA 목록 안에 있는지, pos와 같은 pos를 가진 MOVEDATA의 인덱스 반환, 없으면 -1
 
-MOVEDATA* GetMoveData(CHESS* ch, const POS pos);					// 매개변수로 전달된 체스판을 기반으로 이동가능한 위치 벡터를 반환
+MOVEDATA* GetMoveData(CHESS* ch, const POS pos);					// 매개변수로 전달된 체스판을 기반으로 이동가능한 위치 데이터들을 반환
 BOOL PiecesCanMove(CHESS* chess, int curColor);						// 기물들이 움직일 수 있는 수가 있는지 확인
 
 void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData); // 기물을 움직이고 승패판정
