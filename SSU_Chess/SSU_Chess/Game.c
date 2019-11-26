@@ -690,7 +690,7 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 	switch (chess->states[src.y][src.x].pieceType)
 	{
 	case KING: // King일 경우 캐슬링 확인
-		if (desMoveData.isCastling != 0)
+		if (desMoveData.isCastling == 1 || desMoveData.isCastling == 2)
 		{
 			//King 이동
 			chess->states[src.y][src.x].moveCnt++;
@@ -698,8 +698,8 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 			chess->states[src.y][src.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; // 움직이기 전의 위치는 NONE으로
 
 			//Rook 이동
-			POS rookPos;
-			POS rookDesPos;
+			POS rookPos = { 0, 0 };
+			POS rookDesPos = { 0, 0 };
 
 			if (desMoveData.isCastling == 1) //킹 사이드 캐슬링인 경우
 			{
@@ -711,8 +711,6 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 				rookPos = (curPlayer == WHITE_PLAYER ? (POS) { 0, 7 } : (POS) { 0, 0 });
 				rookDesPos = (curPlayer == WHITE_PLAYER ? (POS) { 3, 7 } : (POS) { 3, 0 });
 			}							
-			//rookPos = (POS){ 7,7 };	
-			//rookDesPos = (POS){ 5, 7 };
 										
 			chess->states[rookPos.y][rookPos.x].moveCnt++;
 			chess->states[rookDesPos.y][rookDesPos.x] = chess->states[rookPos.y][rookPos.x];
@@ -720,6 +718,7 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 
 			break;
 		}
+
 
 	case PAWN : 
 		chess->states[src.y][src.x].moveCnt++;
