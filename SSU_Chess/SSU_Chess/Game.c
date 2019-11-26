@@ -564,12 +564,12 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 		
 		//캐슬링
 		//킹의 움직임 여부를 우선 판단
-		if (ch->states[curColor == WHITE_PLAYER ? 7 : 0][curColor == WHITE_PLAYER ? 4 : 3].pieceType == KING &&
-			ch->states[curColor == WHITE_PLAYER ? 7 : 0][curColor == WHITE_PLAYER ? 4 : 3].moveCnt == 0)
+		if (ch->states[curColor == WHITE_PLAYER ? 7 : 0][curColor == WHITE_PLAYER ? 4 : 4].pieceType == KING &&
+			ch->states[curColor == WHITE_PLAYER ? 7 : 0][curColor == WHITE_PLAYER ? 4 : 4].moveCnt == 0)
 		{
-			POS kingPos = { curColor == WHITE_PLAYER ? 4 : 3 , curColor == WHITE_PLAYER ? 7 : 0 };
-			POS rookPosK = { curColor == WHITE_PLAYER ? 7 : 0, curColor == WHITE_PLAYER ? 7 : 0 };
-			POS rookPosQ = { curColor == WHITE_PLAYER ? 0 : 7, curColor == WHITE_PLAYER ? 7 : 0 };
+			POS kingPos =  curColor == WHITE_PLAYER ? (POS) {4, 7} : (POS) {4, 0} ;
+			POS rookPosK =  curColor == WHITE_PLAYER ? (POS) {7, 7} : (POS) {7, 0} ;
+			POS rookPosQ =  curColor == WHITE_PLAYER ? (POS) {0, 7} : (POS) {0, 0} ;
 
 			//현재 킹이 체크되어있는지 판단
 			if (CalculateState(ch, (POS) { kingPos.x, kingPos.y }) == 1)
@@ -584,7 +584,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 
 				for (int i = 1; i <= 2; i++) //킹과 룩 사이의 빈칸에 적의 기물의 이동이 가능한지 여부 판단
 				{
-					POS nextPos = { kingPos.x - (curColor * i), kingPos.y };
+					POS nextPos = { kingPos.x + i, kingPos.y };
 
 					if (!IsEmpty(ch, nextPos.y, nextPos.x) ||
 						OtherCanCome(ch, (POS) {nextPos.x, nextPos.y}, curColor))
@@ -594,7 +594,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 				{
 					mvData = (MOVEDATA*)realloc(mvData, sizeof(MOVEDATA) * (++cnt));
 					mvData[cnt - 1].pos.y = kingPos.y;
-					mvData[cnt - 1].pos.x = kingPos.x - (2 * curColor);
+					mvData[cnt - 1].pos.x = kingPos.x + 2;
 					mvData[cnt - 1].isCastling = 1;
 				}
 			}
@@ -608,7 +608,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 
 				for (int i = 1; i <= 2; i++) //킹과 룩 사이의 빈칸에 적의 기물의 이동이 가능한지 여부 판단
 				{
-					POS nextPos = { kingPos.x + (curColor * i), kingPos.y };
+					POS nextPos = { kingPos.x - i, kingPos.y };
 
 					if (!IsEmpty(ch, nextPos.y, nextPos.x) || 
 						OtherCanCome(ch, (POS) { nextPos.x, nextPos.y }, curColor))
@@ -618,7 +618,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 				{
 					mvData = (MOVEDATA*)realloc(mvData, sizeof(MOVEDATA) * (++cnt));
 					mvData[cnt - 1].pos.y = kingPos.y;
-					mvData[cnt - 1].pos.x = kingPos.x + (2 * curColor);
+					mvData[cnt - 1].pos.x = kingPos.x - 2;
 					mvData[cnt - 1].isCastling = 2;
 				}
 			}
@@ -703,17 +703,17 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 
 			if (desMoveData.isCastling == 1) //킹 사이드 캐슬링인 경우
 			{
-				rookPos = (curPlayer == WHITE_PLAYER ? (POS) { 7, 7 } : (POS) { 0, 0 });
-				rookDesPos = (curPlayer == WHITE_PLAYER ? (POS) { 5, 7 } : (POS) { 2, 0 } );
+				rookPos = (curPlayer == WHITE_PLAYER ? (POS) { 7, 7 } : (POS) { 7, 0 });
+				rookDesPos = (curPlayer == WHITE_PLAYER ? (POS) { 5, 7 } : (POS) { 5, 0 } );
 			}
 			else if (desMoveData.isCastling == 2) // 퀸 사이드 캐슬링인 경우
 			{
-				rookPos = (curPlayer == WHITE_PLAYER ? (POS) { 7, 7 } : (POS) { 0, 0 });
-				rookDesPos = (curPlayer == WHITE_PLAYER ? (POS) { 3, 7 } : (POS) { 4, 0 });
-			}
-			rookPos = (POS){ 7,7 };	
-			rookDesPos = (POS){ 5, 7 };
-			
+				rookPos = (curPlayer == WHITE_PLAYER ? (POS) { 0, 7 } : (POS) { 0, 0 });
+				rookDesPos = (curPlayer == WHITE_PLAYER ? (POS) { 3, 7 } : (POS) { 3, 0 });
+			}							
+			//rookPos = (POS){ 7,7 };	
+			//rookDesPos = (POS){ 5, 7 };
+										
 			chess->states[rookPos.y][rookPos.x].moveCnt++;
 			chess->states[rookDesPos.y][rookDesPos.x] = chess->states[rookPos.y][rookPos.x];
 			chess->states[rookPos.y][rookPos.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; // 움직이기 전의 위치는 NONE으로			
