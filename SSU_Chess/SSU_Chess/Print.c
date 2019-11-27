@@ -211,7 +211,6 @@ void PrintState(CHESS* chess) // 체스판 옆에 게임에 대한 추가적인 정보를 표시하�
 
 	}
 
-
 	PrintRect((POS) { 1, 17 }, 20, 2);
 	SetColor(Dgray, Black);
 	for (int i = 0; i < 20; i++)
@@ -240,6 +239,9 @@ void PrintState(CHESS* chess) // 체스판 옆에 게임에 대한 추가적인 정보를 표시하�
 	default:
 		printf("           ");
 	}
+
+	//프로모션을 위한 칸 표시
+	PrintRect((POS) { 1, 10 }, 20, 2);
 }
 
 /**
@@ -353,4 +355,32 @@ void PrtMainMenu()
 	SetColor(Red, 0);
 	gotoxy(20, 35);
 	printf("☞");
+}
+
+/**
+	@ 함수 이름: PrintPromoSel
+	@ 함수 설명: 프로모션을 할 기물을 선택할 인터페이스를 출력한다.
+	@ 파라미터 이름 나열 (curColor)
+	@ 파라미터 설명
+		@ curColor : 프로모션 할 Pawn의 소유자
+	@ 참조 함수들 : SetColor
+**/
+void PrintPromoSel(int curColor)
+{
+	char pmData[5] = { 'N', 'B', 'R', 'Q' };
+
+	if (curColor == BLACK_PLAYER)
+		SetColor(Lmagenta, Black);
+	else if (curColor == WHITE_PLAYER)
+		SetColor(Dgray, Black);
+	
+	for (int i = 0; i < 4; i++)
+	{
+		gotoxy(GAP + 11, (GAP + CHESS_SIZE * GRID_SIZE + (i * 2)) * 2 + 7);
+		printf("%c", curColor == BLACK_PLAYER ? pmData[i] + 32 : pmData[i]);
+	}
+
+	SetColor(White, Black);
+	gotoxy(GAP + 12, (GAP + CHESS_SIZE * GRID_SIZE + 0) * 2 + 6);
+	printf("↑");
 }

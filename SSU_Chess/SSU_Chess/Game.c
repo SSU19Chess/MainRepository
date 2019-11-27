@@ -16,6 +16,45 @@ const PIECETYPE initPieces[CHESS_SIZE][CHESS_SIZE] = {
 	{PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN, PAWN},
 	{ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK}
 };
+
+/**
+	@ 함수 이름: InGame
+	@ 함수 설명: 게임화면, 게임 상태(Check, CheckMate, StaleMate)를 화면에 출력하고
+				 사용자의 입력(방향키 상하좌우, Enter)을 받아 기물을 움직이는 함수를 호출
+				 입력을 받고 게임에 상태에 따라 게임을 종료한다.
+	@ 참조 함수들: Init, PrintBoard, PrintState, Input, PrintResult
+	//
+**/
+int InGame()
+{
+	// 변수 선언 -------------------------------
+	CHESS* chess = Init();			// 체스 게임 정보
+	POS currentPos = { 0,0 };		// 체스판에서의 현재 위치
+	POS lastSelectedPos = { -1, -1 };	// 선택한 기물의 위치, 선택한 기물이 없다면 {-1, -1}
+	MOVEDATA* moveData = NULL;		// 선택한 기물이 움직일 수 있는 위치 정보들
+
+	// 인 게임화면------------------------------
+	while (1)
+	{
+		PrintBoard(chess, moveData);
+		PrintState(chess);
+
+		Input(chess, &lastSelectedPos, &currentPos, &moveData);
+		if (chess->printInfo.gameState == 2)
+		{
+			// 체크메이트 발생 게임 종료
+			PrintResult(chess->currentPlayer * -1);
+			return 1;
+		}
+		else if (chess->printInfo.gameState == 3)
+		{
+			// 스테일메이트 발생 게임 종료
+			PrintResult(0);
+			return 1;
+		}
+	}
+}
+
 /**
 	@ 함수 이름: MainMenu
 	@ 함수 설명: 게임 시작화면을 화면에 출력해주고 키보드 위, 아래 방향키를 통해 '게임 시작', '게임 종료'를 선택한다.
@@ -25,7 +64,7 @@ const PIECETYPE initPieces[CHESS_SIZE][CHESS_SIZE] = {
 int MainMenu()
 {
 	// 초기 세팅 -------------------------------
-	//CursorView(0);
+	CursorView(0);
 
 	// 변수 선언 -------------------------------
 	int ypos = 20;
@@ -59,45 +98,8 @@ int MainMenu()
 		else if (input == ENTER)
 		{
 			system("cls");
+			CursorView(1);
 			return ypos == 14 ? -1 : 0;
-		}
-	}
-}
-
-/**
-	@ 함수 이름: InGame
-	@ 함수 설명: 게임화면, 게임 상태(Check, CheckMate, StaleMate)를 화면에 출력하고
-				 사용자의 입력(방향키 상하좌우, Enter)을 받아 기물을 움직이는 함수를 호출
-				 입력을 받고 게임에 상태에 따라 게임을 종료한다.
-	@ 참조 함수들: Init, PrintBoard, PrintState, Input, PrintResult
-	//
-**/
-int InGame()
-{
-	// 변수 선언 -------------------------------
-	CHESS* chess = Init();			// 체스 게임 정보
-	POS currentPos = { 0,0 };		// 체스판에서의 현재 위치
-	POS lastSelectedPos = { -1, -1 };	// 선택한 기물의 위치, 선택한 기물이 없다면 {-1, -1}
-	MOVEDATA* moveData = NULL;		// 선택한 기물이 움직일 수 있는 위치 정보들
-
-	// 인 게임화면------------------------------
-	while (1)
-	{
-		PrintBoard(chess, moveData);
-		PrintState(chess);
-
-		Input(chess, &lastSelectedPos, &currentPos, &moveData);
-		if (chess->printInfo.gameState == 2)
-		{
-			// 체크메이트 발생 게임 종료
-			PrintResult(chess->currentPlayer * -1);
-			return 1;
-		}
-		else if(chess->printInfo.gameState == 3)
-		{
-			// 스테일메이트 발생 게임 종료
-			PrintResult(0);
-			return 1;
 		}
 	}
 }
@@ -258,6 +260,30 @@ CHESS* Init()
 }
 
 /**
+	@ 함수 이름: IsInMoveData
+	@ 함수 설명: pos가 md목록 안에 있는지를 확인하여 있다면 인덱스를 반환, 없으면 -1을 반환한다.
+	@ 파라미터 이름 나열 (md, pos)
+	@ 파라미터 설명
+		@ pos: x, y 값을 담는 구조체
+		@ md: MOVEDATA 구조체 배열을 가리키는 포인터
+	@ exception 예외처리
+	// md가 NULL을 가리키면 -1을 반환
+**/
+int IsInMoveData(const MOVEDATA* md, const POS pos)
+{
+	if (md == NULL)
+		return -1;
+
+	size_t size = _msize(md) / sizeof(MOVEDATA);
+	for (int i = 0; i < size; i++)
+	{
+		if (md[i].pos.x == pos.x && md[i].pos.y == pos.y)
+			return i;
+	}
+	return -1;
+}
+
+/**
 	@ 함수 이름 : IsAvailableToMov
 	@ 함수 설명 : 파라미터로 전달된 말이 y, x로 이동할 수 있는지 여부 반환
 	@ 파라미터 이름 나열 : (ch, y, x, curColor)
@@ -300,6 +326,20 @@ BOOL IsEmpty(CHESS* ch, int y, int x)
 		return TRUE;
 	else
 		return FALSE;
+}
+
+/**
+	@ 함수 이름: IsInMap
+	@ 함수 설명: pos가 체스판 범위 안에 있는지 확인하여 범위 안이면 True를 반환, 범위 밖이면 False를 반환한다.
+	@ 파라미터 이름 나열 (pos)
+	@ 파라미터 설명
+		@ pos: x, y 값을 담는 구조체
+**/
+BOOL IsInMap(POS pos)
+{
+	if (pos.x < 0 || pos.x >= CHESS_SIZE || pos.y < 0 || pos.y >= CHESS_SIZE)
+		return FALSE;
+	return TRUE;
 }
 
 /**
@@ -458,43 +498,58 @@ BOOL CheckAround(CHESS* chess, const POS kingPos)
 }
 
 /**
-	@ 함수 이름: IsInMap
-	@ 함수 설명: pos가 체스판 범위 안에 있는지 확인하여 범위 안이면 True를 반환, 범위 밖이면 False를 반환한다.
-	@ 파라미터 이름 나열 (pos)
+	@ 함수 이름: PiecesCanMove
+	@ 함수 설명: curColor와 같은 색의 플레이어의 기물들이 움직일 수 있는 수가 있는지 확인하여 가능하면 True, 움직일 수 없다면 False를 반환한다.
+	@ 파라미터 이름 나열 (chess, curColor)
 	@ 파라미터 설명
-		@ pos: x, y 값을 담는 구조체
+		@ chess: 체스 게임에 대한 정보를 가지고 있는 구조체
+		@ curColor: 확인할 플레이어의 색깔
+	@ 참조 함수들: GetMoveData
 **/
-BOOL IsInMap(POS pos) 
+BOOL PiecesCanMove(CHESS* chess, int curColor)
 {
-	if (pos.x < 0 || pos.x >= CHESS_SIZE || pos.y < 0 || pos.y >= CHESS_SIZE)
-		return FALSE;
-	return TRUE;
+	for (int y = 0; y < CHESS_SIZE; y++)
+	{
+		for (int x = 0; x < CHESS_SIZE; x++)
+		{
+			if (chess->states[y][x].player == curColor)
+			{
+				if (_msize(GetMoveData(chess, (POS) { x, y })) / sizeof(MOVEDATA) != 0)
+					return TRUE;
+			}
+		}
+	}
+	return FALSE;
 }
 
 /**
-	@ 함수 이름: IsInMoveData
-	@ 함수 설명: pos가 md목록 안에 있는지를 확인하여 있다면 인덱스를 반환, 없으면 -1을 반환한다.
-	@ 파라미터 이름 나열 (md, pos)
+	@ 함수 이름: GetKingPos
+	@ 함수 설명: curColor의 King 위치를 찾아서 반환한다.
+	@ 파라미터 이름 나열 (chess, curColor)
 	@ 파라미터 설명
-		@ pos: x, y 값을 담는 구조체
-		@ md: MOVEDATA 구조체 배열을 가리키는 포인터    
-	@ exception 예외처리
-	// md가 NULL을 가리키면 -1을 반환
+		@ chess : 체스 게임에 대한 정보를 가지고 있는 구조체
+		@ src : 전달된 플레이어의 색깔
 **/
-int IsInMoveData(const MOVEDATA* md, const POS pos)
+POS GetKingPos(CHESS* chess, int curColor)
 {
-	if( md == NULL)
-		return -1;
+	POS ret;
 
-	size_t size = _msize(md) / sizeof(MOVEDATA);
-	for (int i = 0; i < size; i++)
+	//완전 탐색으로 KING의 위치를 찾는다.
+	for (int y = 0; y < CHESS_SIZE; y++)
 	{
-		if (md[i].pos.x == pos.x && md[i].pos.y == pos.y)
-			return i;
+		for (int x = 0; x < CHESS_SIZE; x++)
+		{
+			if (chess->states[y][x].player == curColor &&
+				chess->states[y][x].pieceType == KING)
+			{
+				ret = (POS){ x, y };
+				return ret;
+			}
+		}
 	}
-	return -1;
-}
 
+	return (POS) { -1, -1 }; //ERROR!
+}
 
 /**
 	@ 함수 이름: GetMoveData
@@ -765,160 +820,6 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 		return mvData;
 }
 
-/**
-	@ 함수 이름: PiecesCanMove
-	@ 함수 설명: curColor와 같은 색의 플레이어의 기물들이 움직일 수 있는 수가 있는지 확인하여 가능하면 True, 움직일 수 없다면 False를 반환한다.
-	@ 파라미터 이름 나열 (chess, curColor)
-	@ 파라미터 설명
-		@ chess: 체스 게임에 대한 정보를 가지고 있는 구조체
-		@ curColor: 확인할 플레이어의 색깔
-	@ 참조 함수들: GetMoveData
-**/
-BOOL PiecesCanMove(CHESS* chess, int curColor)
-{
-	for (int y = 0; y < CHESS_SIZE; y++)
-	{
-		for (int x = 0; x < CHESS_SIZE; x++)
-		{
-			if (chess->states[y][x].player == curColor)
-			{
-				if (_msize(GetMoveData(chess, (POS) { x, y })) / sizeof(MOVEDATA) != 0)
-					return TRUE;
-			}
-		}
-	}
-	return FALSE;
-}
-
-/**
-	@ 함수 이름: Move
-	@ 함수 설명: src에 있는 기물을 desMoveData.pos로 움직인다. 기물의 타입에 따라, King의 경우 캐슬링, Pawn의 경우 앙파상 여부를 확인하고 시행한다.
-				 기물을 움직이고 게임의 상태( Check, CheckMate, StaleMate)를 확인한다.
-				 위 작업이 끝난 후 상대방에게 턴을 넘긴다.
-	@ 파라미터 이름 나열 (chess, src, desMoveData)
-	@ 파라미터 설명
-		@ chess: 체스 게임에 대한 정보를 가지고 있는 구조체
-		@ src: 움직일 기물의 원래 위치
-		@ desMoveData: 기물이 움직일 위치에 관한 정보를 가진 MOVEDATA 구조체
-	@ 참조 함수들: UpdateEpState, GetKingPos, CalculateState, CheckAround, PiecesCanMove
-**/
-void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData) 
-{
-	UpdateEpState(chess, chess->states[src.y][src.x].player); //앙파상 폰 관리
-
-	int curPlayer = chess->states[src.y][src.x].player;
-
-	// 움직일 위치에 상대 말이 있는 경우
-	if (chess->states[desMoveData.pos.y][desMoveData.pos.x].pieceType != NONE)
-	{
-		int playerIndex = chess->states[src.y][src.x].player == BLACK_PLAYER ? 1 : 0;
-		chess->printInfo.diedPiece[playerIndex][chess->printInfo.diedPieceCnt[playerIndex]++] = chess->states[desMoveData.pos.y][desMoveData.pos.x].pieceType;
-	}
-
-	switch (chess->states[src.y][src.x].pieceType)
-	{
-	case KING: // King일 경우 캐슬링 확인
-		if (desMoveData.isCastling == 1 || desMoveData.isCastling == 2)
-		{
-			//King 이동
-			chess->states[src.y][src.x].moveCnt++;
-			chess->states[desMoveData.pos.y][desMoveData.pos.x] = chess->states[src.y][src.x];
-			chess->states[src.y][src.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; // 움직이기 전의 위치는 NONE으로
-
-			//Rook 이동
-			POS rookPos = { 0, 0 };
-			POS rookDesPos = { 0, 0 };
-
-			if (desMoveData.isCastling == 1) //킹 사이드 캐슬링인 경우
-			{
-				rookPos = (curPlayer == WHITE_PLAYER ? (POS) { 7, 7 } : (POS) { 7, 0 });
-				rookDesPos = (curPlayer == WHITE_PLAYER ? (POS) { 5, 7 } : (POS) { 5, 0 } );
-			}
-			else if (desMoveData.isCastling == 2) // 퀸 사이드 캐슬링인 경우
-			{
-				rookPos = (curPlayer == WHITE_PLAYER ? (POS) { 0, 7 } : (POS) { 0, 0 });
-				rookDesPos = (curPlayer == WHITE_PLAYER ? (POS) { 3, 7 } : (POS) { 3, 0 });
-			}							
-										
-			chess->states[rookPos.y][rookPos.x].moveCnt++;
-			chess->states[rookDesPos.y][rookDesPos.x] = chess->states[rookPos.y][rookPos.x];
-			chess->states[rookPos.y][rookPos.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; // 움직이기 전의 위치는 NONE으로			
-
-			break;
-		}
-
-
-	case PAWN : 
-		chess->states[src.y][src.x].moveCnt++;
-		chess->states[desMoveData.pos.y][desMoveData.pos.x] = chess->states[src.y][src.x]; // 기물을 움직이고
-		
-		if (chess->states[src.y][src.x].moveCnt == 1 &&								 //최초로 움직이는 경우이고,
-			  desMoveData.pos.y == ( chess->states[src.y][src.x].player == WHITE_PLAYER ? 4 : 3)) //2칸 앞으로 전진하는 경우
-			chess->states[desMoveData.pos.y][desMoveData.pos.x].epState = TRUE;
-		
-		chess->states[src.y][src.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; // 움직이기 전의 위치는 NONE으로
-		
-		
-		if (desMoveData.isEP == TRUE) //앙파상 조건을 만족하여 상대방 폰의 뒤로 이동할 경우, 
-		{
-			//상대방의 기물을 제거.
-			chess->states[desMoveData.pos.y - curPlayer][desMoveData.pos.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; //앙파상 당한 폰의 위치는 NONE으로
-		}
-
-		break;
-
-	default: {
-		chess->states[src.y][src.x].moveCnt++;
-		chess->states[desMoveData.pos.y][desMoveData.pos.x] = chess->states[src.y][src.x]; // 기물을 움직이고
-		chess->states[src.y][src.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; // 움직이기 전의 위치는 NONE으로
-		}
-	}
-	
-	// King의 위치를 찾는 부분------------
-	// 움직인 플레이어의 색이 아닌 상대의 색
-	POS kingPos = GetKingPos(chess, chess->currentPlayer * -1); 
-	//-----------------------------------
-
-
-	int gameState = CalculateState(chess, kingPos); // 현재 어떤 상태인지, (Check, CheckMate, StaleMate)
-	gotoxy(0, 31);
-	if (gameState == 1)
-	{
-		//Check
-		chess->printInfo.gameState = 1;
-	}
-	else if (gameState == 2)
-	{
-		if (CheckAround(chess, kingPos))
-		{
-			// CheckMate
-			chess->printInfo.gameState = 2;
-		}
-		else
-		{
-			//Check
-			chess->printInfo.gameState = 1;
-		}
-	}
-	else
-	{
-		if (CheckAround(chess, kingPos) && !PiecesCanMove(chess, chess->currentPlayer * -1))
-		{
-			// StaleMate
-			chess->printInfo.gameState = 3;
-		}
-		else
-		{
-			//NONE
-			chess->printInfo.gameState = 0;
-		}
-	}
-
-
-	chess->currentPlayer = chess->currentPlayer == BLACK_PLAYER ? WHITE_PLAYER : BLACK_PLAYER;
-
-}
-
 // King이 공격을 받지 않음 == 0
 // Check == 1
 // 상대의 공격을 막을 수 없음 == 2
@@ -1077,6 +978,140 @@ int CalculateState(CHESS* chess, const POS kingPos)
 }
 
 /**
+	@ 함수 이름: Move
+	@ 함수 설명: src에 있는 기물을 desMoveData.pos로 움직인다. 기물의 타입에 따라, King의 경우 캐슬링, Pawn의 경우 앙파상 여부를 확인하고 시행한다.
+				 기물을 움직이고 게임의 상태( Check, CheckMate, StaleMate)를 확인한다.
+				 위 작업이 끝난 후 상대방에게 턴을 넘긴다.
+	@ 파라미터 이름 나열 (chess, src, desMoveData)
+	@ 파라미터 설명
+		@ chess: 체스 게임에 대한 정보를 가지고 있는 구조체
+		@ src: 움직일 기물의 원래 위치
+		@ desMoveData: 기물이 움직일 위치에 관한 정보를 가진 MOVEDATA 구조체
+	@ 참조 함수들: UpdateEpState, Promotion, GetKingPos, CalculateState, CheckAround, PiecesCanMove
+**/
+void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
+{
+	UpdateEpState(chess, chess->states[src.y][src.x].player); //앙파상 폰 관리
+
+	int curPlayer = chess->states[src.y][src.x].player;
+
+	// 움직일 위치에 상대 말이 있는 경우
+	if (chess->states[desMoveData.pos.y][desMoveData.pos.x].pieceType != NONE)
+	{
+		int playerIndex = chess->states[src.y][src.x].player == BLACK_PLAYER ? 1 : 0;
+		chess->printInfo.diedPiece[playerIndex][chess->printInfo.diedPieceCnt[playerIndex]++] = chess->states[desMoveData.pos.y][desMoveData.pos.x].pieceType;
+	}
+
+	switch (chess->states[src.y][src.x].pieceType)
+	{
+	case KING: // King일 경우 캐슬링 확인
+		if (desMoveData.isCastling == 1 || desMoveData.isCastling == 2)
+		{
+			//King 이동
+			chess->states[src.y][src.x].moveCnt++;
+			chess->states[desMoveData.pos.y][desMoveData.pos.x] = chess->states[src.y][src.x];
+			chess->states[src.y][src.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; // 움직이기 전의 위치는 NONE으로
+
+			//Rook 이동
+			POS rookPos = { 0, 0 };
+			POS rookDesPos = { 0, 0 };
+
+			if (desMoveData.isCastling == 1) //킹 사이드 캐슬링인 경우
+			{
+				rookPos = (curPlayer == WHITE_PLAYER ? (POS) { 7, 7 } : (POS) { 7, 0 });
+				rookDesPos = (curPlayer == WHITE_PLAYER ? (POS) { 5, 7 } : (POS) { 5, 0 });
+			}
+			else if (desMoveData.isCastling == 2) // 퀸 사이드 캐슬링인 경우
+			{
+				rookPos = (curPlayer == WHITE_PLAYER ? (POS) { 0, 7 } : (POS) { 0, 0 });
+				rookDesPos = (curPlayer == WHITE_PLAYER ? (POS) { 3, 7 } : (POS) { 3, 0 });
+			}
+
+			chess->states[rookPos.y][rookPos.x].moveCnt++;
+			chess->states[rookDesPos.y][rookDesPos.x] = chess->states[rookPos.y][rookPos.x];
+			chess->states[rookPos.y][rookPos.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; // 움직이기 전의 위치는 NONE으로			
+
+			break;
+		}
+
+
+	case PAWN:
+		chess->states[src.y][src.x].moveCnt++;
+		chess->states[desMoveData.pos.y][desMoveData.pos.x] = chess->states[src.y][src.x]; // 기물을 움직이고
+
+		//앙파상을 당할수 있는지 판단하는 변수를 업데이트
+		if (chess->states[src.y][src.x].moveCnt == 1 &&								 //최초로 움직이는 경우이고,
+			desMoveData.pos.y == (chess->states[src.y][src.x].player == WHITE_PLAYER ? 4 : 3)) //2칸 앞으로 전진하는 경우
+			chess->states[desMoveData.pos.y][desMoveData.pos.x].epState = TRUE;
+
+		chess->states[src.y][src.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; // 움직이기 전의 위치는 NONE으로
+
+		//앙파상 조건을 만족하여 상대방 폰의 뒤로 이동할 경우, 
+		if (desMoveData.isEP == TRUE) 
+		{
+			//상대방의 기물을 제거.
+			chess->states[desMoveData.pos.y - curPlayer][desMoveData.pos.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; //앙파상 당한 폰의 위치는 NONE으로
+		}
+
+		//프로모션 조건을 만족할 경우
+		if (desMoveData.pos.y == (curPlayer == WHITE_PLAYER ? 0 : 7))
+			Promotion(chess, desMoveData.pos, curPlayer);
+
+		break;
+
+	default: {
+		chess->states[src.y][src.x].moveCnt++;
+		chess->states[desMoveData.pos.y][desMoveData.pos.x] = chess->states[src.y][src.x]; // 기물을 움직이고
+		chess->states[src.y][src.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; // 움직이기 전의 위치는 NONE으로
+	}
+	}
+
+	// King의 위치를 찾는 부분------------
+	// 움직인 플레이어의 색이 아닌 상대의 색
+	POS kingPos = GetKingPos(chess, chess->currentPlayer * -1);
+	//-----------------------------------
+
+
+	int gameState = CalculateState(chess, kingPos); // 현재 어떤 상태인지, (Check, CheckMate, StaleMate)
+	gotoxy(0, 31);
+	if (gameState == 1)
+	{
+		//Check
+		chess->printInfo.gameState = 1;
+	}
+	else if (gameState == 2)
+	{
+		if (CheckAround(chess, kingPos))
+		{
+			// CheckMate
+			chess->printInfo.gameState = 2;
+		}
+		else
+		{
+			//Check
+			chess->printInfo.gameState = 1;
+		}
+	}
+	else
+	{
+		if (CheckAround(chess, kingPos) && !PiecesCanMove(chess, chess->currentPlayer * -1))
+		{
+			// StaleMate
+			chess->printInfo.gameState = 3;
+		}
+		else
+		{
+			//NONE
+			chess->printInfo.gameState = 0;
+		}
+	}
+
+
+	chess->currentPlayer = chess->currentPlayer == BLACK_PLAYER ? WHITE_PLAYER : BLACK_PLAYER;
+
+}
+
+/**
 	@ 함수 이름: UpdataEpState
 	@ 함수 설명: 앙파상 상태를 업데이트 한다.
 	            보드 위의 앙파상이 가능한 "현재 색깔 PAWN들"을 탐색하여 
@@ -1103,30 +1138,67 @@ void UpdateEpState(CHESS* chess, int curColor)
 }
 
 /**
-	@ 함수 이름: GetKingPos
-	@ 함수 설명: curColor의 King 위치를 찾아서 반환한다.
-	@ 파라미터 이름 나열 (chess, curColor)
+	@ 함수 이름: Promotion
+	@ 함수 설명: 해당 Pawn을 프로모션한다
+	@ 파라미터 이름 나열 (chess, curPos, curColor)
 	@ 파라미터 설명
 		@ chess : 체스 게임에 대한 정보를 가지고 있는 구조체
-		@ src : 전달된 플레이어의 색깔
+		@ curPos : 프로모션 할 Pawn의 위치
+ 		@ curColor : 프로모션 할 Pawn의 소유자
+	@ 참조 함수들 : CursorView
 **/
-POS GetKingPos(CHESS* chess, int curColor) 
+void Promotion(CHESS* chess, POS curPos, int curColor)
 {
-	POS ret;
+	CursorView(0);
+	PrintPromoSel(curColor);
 
-	//완전 탐색으로 KING의 위치를 찾는다.
-	for (int y = 0; y < CHESS_SIZE; y++)
+	int ypos = GAP + 12;
+	int xpos = (GAP + CHESS_SIZE * GRID_SIZE + 0) * 2 + 6;
+	const int limXL = (GAP + CHESS_SIZE * GRID_SIZE + 0) * 2 + 6;
+	const int limXR = (GAP + CHESS_SIZE * GRID_SIZE + 6) * 2 + 6;
+
+	PIECETYPE piece[4] = { KNIGHT, BISHOP, ROOK, QUEEN };
+	int sel = 0;
+	
+	while (1)
 	{
-		for (int x = 0; x < CHESS_SIZE; x++)
+		gotoxy(ypos, xpos);
+
+		int input = _getch();
+		
+		// 선택
+		if (input == 224)
 		{
-			if (chess->states[y][x].player == curColor &&
-				chess->states[y][x].pieceType == KING)
+			input = _getch();
+			switch (input)
 			{
-				ret = (POS){ x, y };
-				return ret;
+			case RIGHT:
+				if (xpos < limXR) { xpos += 4; sel++; }
+				printf("  ");
+				break;
+			case LEFT:
+				if (xpos > limXL) { xpos -= 4; sel--; }
+				printf("  ");
+				break;
 			}
+			gotoxy(ypos, xpos);
+			SetColor(White, 0);
+			printf("↑");
+		}
+
+		// 선택한 기물로 PIECETYPE을 바꾼다.
+		else if (input == ENTER)
+		{   
+			chess->states[curPos.y][curPos.x].pieceType = piece[sel];
+			break;
 		}
 	}
-	
-	return (POS) { -1, -1 }; //ERROR!
+	CursorView(1);
+
+	//Erase
+	for (int y = GAP + 11; y <= GAP + 12; y++)
+	{
+		gotoxy(y, (GAP + CHESS_SIZE * GRID_SIZE + 2) * 2);
+		printf("                ");
+	}
 }

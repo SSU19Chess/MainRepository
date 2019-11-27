@@ -24,3 +24,5 @@ void PrintState(CHESS* chess);
 void PrintResult(int winPlayerColor);
 void PrintRect(const POS pos, const int width, const int height);
 void PrtMainMenu();					 //메인메뉴를 출력한다.
+
+void PrintPromoSel(int curColor);
