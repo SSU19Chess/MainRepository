@@ -436,7 +436,11 @@ BOOL CheckAround(CHESS* chess, const POS kingPos)
 			{
 				// 다른 색의 기물이 있다면 aroundOnlySameColor를 False로 
 				if (chess->states[_kingPos.y][_kingPos.x].player != chess->states[kingPos.y][kingPos.x].player)
+				{
+					if (!OtherCanCome(chess, _kingPos, chess->states[kingPos.y][kingPos.x].player))
+						return FALSE;
 					aroundOnlySameColor = FALSE;
+				}
 				continue;
 			}
 
