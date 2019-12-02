@@ -1,4 +1,4 @@
 ﻿  Game.c
-C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\SSU_Chess\Game.c(273,1): warning C4028:  정식 매개 변수 1이(가) 선언과 다릅니다.
-C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\SSU_Chess\Game.c(277,25): warning C4090:  '함수': 'const' 한정자가 서로 다릅니다.
+C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\SSU_Chess\Game.c(289,1): warning C4028:  정식 매개 변수 1이(가) 선언과 다릅니다.
+C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\SSU_Chess\Game.c(293,25): warning C4090:  '함수': 'const' 한정자가 서로 다릅니다.
   SSU_Chess.vcxproj -> C:\Users\jungj\Source\Repos\SSU19Chess\MainRepository\SSU_Chess\x64\Debug\SSU_Chess.exe

@@ -12,7 +12,7 @@ BOOL IsAvailableToMov(CHESS* ch, int y, int x, int curColor);		// 해당 말이 y, x
 BOOL IsEmpty(CHESS* ch, int y, int x);								// 해당 칸이 비어있으면 TRUE
 BOOL IsInMap(POS pos);												// pos가 체스판 안에 있는지 확인
 
-BOOL OtherCanCome(CHESS* chess, const POS pos, int playerColor);	// playerColor와 다른 색의 말이 pos로 올 수 있는지 
+BOOL OtherCanCome(CHESS* chess, const POS pos, int playerColor, BOOL isEmpty);	// playerColor와 다른 색의 말이 pos로 올 수 있는지 
 BOOL CheckAround(CHESS* chess, const POS kingPos);					// 움직이면 죽는지 확인
 BOOL PiecesCanMove(CHESS* chess, int curColor);						// 기물들이 움직일 수 있는 수가 있는지 확인
 

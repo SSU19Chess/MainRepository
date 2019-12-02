@@ -267,6 +267,7 @@ void PrintResult(int winPlayerColor) // BLACK_PLAYER, WHITE_PLAYER, ( 0 == ¹«½Âº
 		gotoxy(GAP + 12, (GAP + CHESS_SIZE * GRID_SIZE + 5) * 2 + 1);
 		printf("[DRAW]");
 	}
+	gotoxy(GAP + CHESS_SIZE * 3 + 1, 0);
 }
 
 /**

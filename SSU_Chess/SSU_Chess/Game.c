@@ -17,6 +17,18 @@ const PIECETYPE initPieces[CHESS_SIZE][CHESS_SIZE] = {
 	{ROOK, KNIGHT, BISHOP, QUEEN, KING, BISHOP, KNIGHT, ROOK}
 };
 
+// 초기 게임 판 구성
+const PIECETYPE stalePieces[CHESS_SIZE][CHESS_SIZE] = {
+	{NONE, NONE, NONE, NONE, NONE, KING, NONE, NONE},
+	{NONE, NONE, NONE, NONE, NONE, PAWN, NONE, NONE},
+	{NONE, NONE, NONE, NONE, NONE, NONE, NONE, NONE},
+	{NONE, NONE, NONE, NONE, NONE, KING, NONE, NONE},
+	{NONE, NONE, NONE, NONE, NONE, NONE, NONE, NONE},
+	{NONE, NONE, NONE, NONE, NONE, NONE, NONE, NONE},
+	{NONE, NONE, NONE, NONE, NONE, NONE, NONE, NONE},
+	{NONE, NONE, NONE, NONE, NONE, NONE, NONE, NONE}
+};
+
 /**
 	@ 함수 이름: InGame
 	@ 함수 설명: 게임화면, 게임 상태(Check, CheckMate, StaleMate)를 화면에 출력하고
@@ -43,12 +55,16 @@ int InGame()
 		if (chess->printInfo.gameState == 2)
 		{
 			// 체크메이트 발생 게임 종료
+			PrintBoard(chess, moveData);
+			PrintState(chess);
 			PrintResult(chess->currentPlayer * -1);
 			return 1;
 		}
 		else if (chess->printInfo.gameState == 3)
 		{
 			// 스테일메이트 발생 게임 종료
+			PrintBoard(chess, moveData);
+			PrintState(chess);
 			PrintResult(0);
 			return 1;
 		}
@@ -350,11 +366,12 @@ BOOL IsInMap(POS pos)
 		@ chess: 체스 게임에 대한 정보를 가지고 있는 구조체
 		@ pos: playerColor와 다른 색의 말이 올 수 있는지를 확인하기 위한 위치
 		@ playerColor: 검사할 플레이어의 색깔
+		@ isEmpty: 해당 칸이 앞으로 비어있는지를 표시하는 변수( 폰이 올 수 있는지를 확인하기 위헤)
 	@ 참조 함수들: IsInMap
 	@ exception 예외처리
 	// 탐색 중 체스판의 인덱스를 넘어갈 경우 for문 내에서 break를 건다.
 **/
-BOOL OtherCanCome(CHESS* chess, const POS pos, int playerColor)
+BOOL OtherCanCome(CHESS* chess, const POS pos, int playerColor, BOOL isEmpty)
 {
 	int posColor = chess->states[pos.y][pos.x].player; // pos 위치의 색깔
 	int dir[][2] = {
@@ -393,19 +410,19 @@ BOOL OtherCanCome(CHESS* chess, const POS pos, int playerColor)
 					}
 					else if (chess->states[_pos.y][_pos.x].pieceType == PAWN)
 					{
-						if (i == 1)
+						if (i == 1 && !isEmpty)
 						{
-							if (chess->currentPlayer == BLACK_PLAYER)
+							if (playerColor == BLACK_PLAYER)
 							{
 								// 검은색일 때 상대의 말이 흰색이므로 
 								// 상대가 위쪽 대각선 방향으로 공격하므로
 								// 검색당하는 검은색은 아래쪽 대각선을 검사
-								if ((d == 2 && s == -1) || (d == 3 && s == -1))
+								if ((d == 2 && s == 1) || (d == 3 && s == -1))
 									return TRUE;
 							}
 							else
 							{
-								if ((d == 2 && s == 1) || (d == 3 && s == 1))
+								if ((d == 2 && s == -1) || (d == 3 && s == 1))
 									return TRUE;
 							}
 						}
@@ -473,12 +490,39 @@ BOOL CheckAround(CHESS* chess, const POS kingPos)
 			if (!IsInMap(_kingPos))
 				continue;
 
+			// 주위에 상대편 킹이 있는지 확인
+			BOOL canMoveHere = TRUE;
+			for (int j = -1; j <= 1; j++)
+			{
+				for (int i = -1; i <= 1; i++)
+				{
+					if (i == 0 && j == 0)
+						break;
+					POS __kingPos = { kingPos.x + x + i, kingPos.y + y + j};
+					// 맵 밖도 확인할 필요 없음
+					if (!IsInMap(__kingPos))
+						continue;
+
+					if (chess->states[__kingPos.y][__kingPos.x].pieceType == KING &&
+						chess->states[__kingPos.y][__kingPos.x].player != chess->states[kingPos.y][kingPos.x].player)
+					{
+						canMoveHere = FALSE;
+						break;
+					}
+				}
+				if (!canMoveHere)
+					break;
+			}
+			if (!canMoveHere)
+				continue;
+
+
 			if (chess->states[_kingPos.y][_kingPos.x].pieceType != NONE)
 			{
 				// 다른 색의 기물이 있다면 aroundOnlySameColor를 False로 
 				if (chess->states[_kingPos.y][_kingPos.x].player != chess->states[kingPos.y][kingPos.x].player)
 				{
-					if (!OtherCanCome(chess, _kingPos, chess->states[kingPos.y][kingPos.x].player))
+					if (!OtherCanCome(chess, _kingPos, chess->states[kingPos.y][kingPos.x].player, FALSE))
 						return FALSE;
 					aroundOnlySameColor = FALSE;
 				}
@@ -487,7 +531,7 @@ BOOL CheckAround(CHESS* chess, const POS kingPos)
 
 			aroundIsFull = FALSE; // 위 if문을 토대로 주변에 빈 공간이 있음을 알 수 있음
 
-			if (!OtherCanCome(chess, _kingPos, chess->states[kingPos.y][kingPos.x].player))
+			if (!OtherCanCome(chess, _kingPos, chess->states[kingPos.y][kingPos.x].player, FALSE))
 				return FALSE;
 		}
 	}
@@ -515,7 +559,9 @@ BOOL PiecesCanMove(CHESS* chess, int curColor)
 		{
 			if (chess->states[y][x].player == curColor)
 			{
-				if (_msize(GetMoveData(chess, (POS) { x, y })) / sizeof(MOVEDATA) != 0)
+				MOVEDATA* m = GetMoveData(chess, (POS) { x, y });
+				size_t t = _msize(m) / sizeof(MOVEDATA);
+				if (t != 0)
 					return TRUE;
 			}
 		}
@@ -717,7 +763,32 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 		{
 			POS nextPos = { pos.x + kingMovDataX[i], pos.y + kingMovDataY[i] };
 
-			if (IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor) && !OtherCanCome(ch, (POS){nextPos.x, nextPos.y}, curColor))
+			// 주위에 상대편 킹이 있는지 확인
+			BOOL canMoveHere = TRUE;
+			for (int j = -1; j <= 1; j++)
+			{
+				for (int i = -1; i <= 1; i++)
+				{
+					if (i == 0 && j == 0)
+						break;
+					POS __kingPos = { nextPos.x + i, nextPos.y + j };
+					// 맵 밖도 확인할 필요 없음
+					if (!IsInMap(__kingPos))
+						continue;
+
+					if (ch->states[__kingPos.y][__kingPos.x].pieceType == KING &&
+						ch->states[__kingPos.y][__kingPos.x].player != curColor)
+					{
+						canMoveHere = FALSE;
+						break;
+					}
+				}
+				if (!canMoveHere)
+					break;
+			}
+
+
+			if (IsAvailableToMov(ch, nextPos.y, nextPos.x, curColor) && !OtherCanCome(ch, (POS){nextPos.x, nextPos.y}, curColor, FALSE) && canMoveHere)
 			{
 				mvData = (MOVEDATA*)realloc(mvData, sizeof(MOVEDATA) * (++cnt));
 				mvData[cnt - 1].pos.y = nextPos.y;
@@ -750,7 +821,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 					POS nextPos = { kingPos.x + i, kingPos.y };
 
 					if (!IsEmpty(ch, nextPos.y, nextPos.x) ||
-						OtherCanCome(ch, (POS) {nextPos.x, nextPos.y}, curColor))
+						OtherCanCome(ch, (POS) {nextPos.x, nextPos.y}, curColor,FALSE))
 						flag = TRUE;
 				}
 				if (!flag) 
@@ -774,7 +845,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 					POS nextPos = { kingPos.x - i, kingPos.y };
 
 					if (!IsEmpty(ch, nextPos.y, nextPos.x) || 
-						OtherCanCome(ch, (POS) { nextPos.x, nextPos.y }, curColor))
+						OtherCanCome(ch, (POS) { nextPos.x, nextPos.y }, curColor, FALSE))
 						flag = TRUE;
 				}
 				if (!flag)
@@ -877,7 +948,7 @@ int CalculateState(CHESS* chess, const POS kingPos)
 						for (int j = i; j >= 1; j--)
 						{
 							POS _pos = { kingPos.x + j * dir[d][0] * s, kingPos.y + j * dir[d][1] * s };
-							if (OtherCanCome(chess, _pos, color))
+							if (OtherCanCome(chess, _pos, color,TRUE))
 							{
 								flag = TRUE;
 								break;
@@ -900,7 +971,7 @@ int CalculateState(CHESS* chess, const POS kingPos)
 						for (int j = i; j >= 1; j--)
 						{
 							POS _pos = { kingPos.x + j * dir[d][0] * s, kingPos.y + j * dir[d][1] * s };
-							if (OtherCanCome(chess, _pos, color))
+							if (OtherCanCome(chess, _pos, color, TRUE))
 							{
 								flag = TRUE;
 								break;
@@ -922,7 +993,7 @@ int CalculateState(CHESS* chess, const POS kingPos)
 								{
 									existEnemy = TRUE;
 									int color = kingColor == BLACK_PLAYER ? WHITE_PLAYER : BLACK_PLAYER;
-									if (OtherCanCome(chess, _checkPos, color))
+									if (OtherCanCome(chess, _checkPos, color, TRUE))
 										return 1;
 								}
 							}
@@ -932,7 +1003,7 @@ int CalculateState(CHESS* chess, const POS kingPos)
 								{
 									existEnemy = TRUE;
 									int color = kingColor == BLACK_PLAYER ? WHITE_PLAYER : BLACK_PLAYER;
-									if (OtherCanCome(chess, _checkPos, color))
+									if (OtherCanCome(chess, _checkPos, color, TRUE))
 										return 1;
 								}
 							}
@@ -965,7 +1036,7 @@ int CalculateState(CHESS* chess, const POS kingPos)
 				{
 					existEnemy = TRUE;
 					int color = kingColor == BLACK_PLAYER ? WHITE_PLAYER : BLACK_PLAYER;
-					if (OtherCanCome(chess, _checkPos, color))
+					if (OtherCanCome(chess, _checkPos, color, TRUE))
 						return 1;
 				}
 			}
