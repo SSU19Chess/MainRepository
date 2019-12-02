@@ -864,7 +864,7 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 
 	//킹이 체크인경우 mvData 검사
 	//mvData에서 체크를 벗어나게 하는 수만을 chkedData에 넣어 반환
-	if (CalculateState(ch, curKingPos) == 1)
+	if (ch->printInfo.gameState == 1)
 	{
 		CHESS ch2;
 		ch2 = *ch;
