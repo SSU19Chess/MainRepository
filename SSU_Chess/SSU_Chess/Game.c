@@ -1119,8 +1119,10 @@ void Move(CHESS* chess, const POS src, const MOVEDATA desMoveData)
 		//앙파상 조건을 만족하여 상대방 폰의 뒤로 이동할 경우, 
 		if (desMoveData.isEP == TRUE) 
 		{
+			int playerIndex = chess->states[src.y][src.x].player == BLACK_PLAYER ? 1 : 0;
+			chess->printInfo.diedPiece[playerIndex][chess->printInfo.diedPieceCnt[playerIndex]++] = chess->states[desMoveData.pos.y - curPlayer][desMoveData.pos.x].pieceType;
 			//상대방의 기물을 제거.
-			chess->states[desMoveData.pos.y - curPlayer][desMoveData.pos.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; //앙파상 당한 폰의 위치는 NONE으로
+			chess->states[desMoveData.pos.y - curPlayer][desMoveData.pos.x] = (STATEDATA){ .pieceType = NONE, .player = EMPTY_PLAYER, .moveCnt = 0 }; //앙파상 당한 폰의 위치는 NONE으로			
 		}
 
 		//프로모션 조건을 만족할 경우

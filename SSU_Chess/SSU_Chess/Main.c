@@ -12,4 +12,6 @@ int main()
 		return 0;
 	else
 		InGame();
+
+	_getch();
 }
