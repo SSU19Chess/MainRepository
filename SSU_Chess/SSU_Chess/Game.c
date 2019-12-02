@@ -393,18 +393,19 @@ BOOL OtherCanCome(CHESS* chess, const POS pos, int playerColor)
 					}
 					else if (chess->states[_pos.y][_pos.x].pieceType == PAWN)
 					{
-						if (posColor != EMPTY_PLAYER && i == 1)
+						if (i == 1)
 						{
 							if (chess->currentPlayer == BLACK_PLAYER)
 							{
-								// 위쪽 대각선
-								if ((d == 2 && s == -1) || (d == 3 && s == 1))
+								// 검은색일 때 상대의 말이 흰색이므로 
+								// 상대가 위쪽 대각선 방향으로 공격하므로
+								// 검색당하는 검은색은 아래쪽 대각선을 검사
+								if ((d == 2 && s == -1) || (d == 3 && s == -1))
 									return TRUE;
 							}
 							else
 							{
-								// 아래쪽 대각선
-								if ((d == 2 && s == 1) || (d == 3 && s == -1))
+								if ((d == 2 && s == 1) || (d == 3 && s == 1))
 									return TRUE;
 							}
 						}
@@ -917,8 +918,7 @@ int CalculateState(CHESS* chess, const POS kingPos)
 							// 검은색 플레이어일 때
 							if (chess->currentPlayer == BLACK_PLAYER)
 							{
-								// 위쪽 대각선
-								if ((d == 2 && s == -1) || (d == 3 && s == 1))
+								if ((d == 2 && s == -1) || (d == 3 && s == -1))
 								{
 									existEnemy = TRUE;
 									int color = kingColor == BLACK_PLAYER ? WHITE_PLAYER : BLACK_PLAYER;
@@ -928,8 +928,7 @@ int CalculateState(CHESS* chess, const POS kingPos)
 							}
 							else
 							{
-								// 아래쪽 대각선
-								if ((d == 2 && s == 1) || (d == 3 && s == -1))
+								if ((d == 2 && s == 1) || (d == 3 && s == 1))
 								{
 									existEnemy = TRUE;
 									int color = kingColor == BLACK_PLAYER ? WHITE_PLAYER : BLACK_PLAYER;
