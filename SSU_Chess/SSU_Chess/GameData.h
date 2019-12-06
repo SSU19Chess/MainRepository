@@ -36,16 +36,16 @@ typedef struct _MOVEDATA
 typedef struct _STATEDATA
 {
 	PIECETYPE pieceType;
-	int player;
-	int moveCnt;
+	int player; // 플레이어 색깔
+	int moveCnt; // 움직인 수
 	int epState; //pawn 전용 멤버, 앙파상으로 잡힐수 있는지 여부를 나타낸다.
 }STATEDATA;
 
 typedef struct _GAMEPRINTINFO
 {
 	int gameState; // 0 == None, 1 == Check, 2 == CheckMate, 3 ==StaleMate
-	PIECETYPE diedPiece[2][20];
-	int diedPieceCnt[2];
+	PIECETYPE diedPiece[2][20]; // 잡은 기물들
+	int diedPieceCnt[2]; // 총 몇 개의 기물을 잡았는지
 }GAMEPRINTINFO;
 
 typedef struct _CHESS
