@@ -875,19 +875,19 @@ MOVEDATA* GetMoveData(CHESS* ch, const POS pos)
 		for (size_t idx = 0; idx < _msize(mvData) / sizeof(MOVEDATA); idx++)
 		{
 			Move(&ch2, pos, *(mvData+idx));
-			if (CalculateState(&ch2, curKingPos) != 1)
+			curKingPos = GetKingPos(&ch2, curColor);
+			if (CalculateState(&ch2, curKingPos) == 0)
 			{
 				chkedData = (MOVEDATA*)realloc(chkedData, sizeof(MOVEDATA) * (++cnt));
 				chkedData[cnt - 1].pos = mvData[idx].pos;
 				chkedData[cnt - 1].isCastling = mvData[idx].isCastling;
 				chkedData[cnt - 1].isEP = mvData[idx].isEP;
 			}
-			Move(&ch2, mvData[idx].pos, (MOVEDATA) { pos, mvData[idx].isCastling, mvData[idx].isEP });
+			ch2 = *ch;
 		}
 
 		return chkedData;
 	}
-
 	else
 		return mvData;
 }
